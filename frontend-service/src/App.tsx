@@ -288,21 +288,31 @@ export default function App() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Card 3 */}
-            <div className="relative glass-card glass-border p-8 flex flex-col justify-between overflow-hidden interactive-hover min-h-[220px]">
-              {/* Background watermark watermark watermark */}
-              <div className="absolute right-[-20px] bottom-[-10px] text-white/5 font-sora font-black text-6xl select-none pointer-events-none tracking-widest">
-                INCOGNITO
-              </div>
-              <div>
-                <div className="w-11 h-11 rounded-lg bg-brand-teal/10 flex items-center justify-center mb-5 border border-brand-teal/20">
-                  <IncognitoIcon />
+              <Link
+                to="/report"
+                className="relative glass-card glass-border p-8 flex flex-col justify-between overflow-hidden interactive-hover min-h-[220px] cursor-pointer"
+              >
+                {/* Background watermark watermark watermark */}
+                <div className="absolute right-[-20px] bottom-[-10px] text-white/5 font-sora font-black text-6xl select-none pointer-events-none tracking-widest">
+                  INCOGNITO
                 </div>
-                <h3 className="font-sora text-lg font-bold mb-2.5 text-white">Anonymous Submission Mode</h3>
-                <p className="text-on-surface/70 text-xs leading-relaxed">
-                  IP obfuscation and burner credentials protect your physical identity during the entire process.
-                </p>
-              </div>
-            </div>
+                <div>
+                  <div className="w-11 h-11 rounded-lg bg-brand-teal/10 flex items-center justify-center mb-5 border border-brand-teal/20">
+                    <IncognitoIcon />
+                  </div>
+                  <h3 className="font-sora text-lg font-bold mb-2.5 text-white">Anonymous Submission Mode</h3>
+                  <p className="text-on-surface/70 text-xs leading-relaxed">
+                    IP obfuscation and burner credentials protect your physical identity during the entire process.
+                  </p>
+                </div>
+                <span className="text-brand-teal text-xs font-bold tracking-widest uppercase hover:underline flex items-center gap-1 mt-4">
+                  Try It <ArrowRightIcon />
+                </span>
+              </Link>
+                          
+
+
+            
 
             {/* Card 4 */}
             <div className="glass-card glass-border p-8 flex flex-col justify-between interactive-hover min-h-[220px]">
