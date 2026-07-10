@@ -1,8 +1,10 @@
 // React hooks and local asset imports
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import zkPadlock from './assets/zk_padlock.png';
 
 // Custom SVG Icons to avoid external dependencies and ensure fast compilation
+// NOTE: exported so login.tsx and signup.tsx can reuse them
 
 const LogoIcon = () => (
   <svg className="w-8 h-8 text-brand-red animate-pulse" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -89,6 +91,9 @@ const GlobeIcon = () => (
   </svg>
 );
 
+// Re-export the icons used by login.tsx / signup.tsx so they can `import { LogoIcon, ShieldIcon, LockIcon } from './App'`
+export { LogoIcon, ShieldIcon, LockIcon };
+
 // Main Application component hosting all features
 export default function App() {
   // Identity Protection Upload Demo State (tracks file selection, progress, and redacted fields)
@@ -156,10 +161,10 @@ export default function App() {
       {/* Header: Contains logo, navigation links, and auth action buttons */}
       <header className="sticky top-0 z-50 glass-card glass-border border-b border-white/5 backdrop-blur-md">
         <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3">
             <LogoIcon />
             <span className="font-sora font-bold text-lg tracking-tight">Truth Uncovered</span>
-          </div>
+          </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
             <a href="#platform" className="hover:text-brand-teal transition-colors">Platform</a>
@@ -168,12 +173,12 @@ export default function App() {
           </nav>
 
           <div className="flex items-center gap-4">
-            <button className="text-sm font-medium px-4 py-2 text-on-surface hover:bg-white/5 rounded-lg interactive-hover">
+            <Link to="/login" className="text-sm font-medium px-4 py-2 text-on-surface hover:bg-white/5 rounded-lg interactive-hover">
               Citizen Login
-            </button>
-            <button className="text-sm font-medium px-5 py-2 bg-brand-red text-white hover:bg-brand-red/90 rounded-lg interactive-hover font-semibold">
+            </Link>
+            <Link to="/signup" className="text-sm font-medium px-5 py-2 bg-brand-red text-white hover:bg-brand-red/90 rounded-lg interactive-hover font-semibold">
               Sign Up
-            </button>
+            </Link>
           </div>
         </div>
       </header>
