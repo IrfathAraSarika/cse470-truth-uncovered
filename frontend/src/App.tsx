@@ -27,6 +27,7 @@ function App() {
       {/* The actual pages */}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/submit-report" element={<ReportSubmissionPage />} />
         <Route path="/chat" element={<Chat />} />
       </Routes>
     </BrowserRouter>

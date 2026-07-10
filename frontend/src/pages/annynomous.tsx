@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ShieldIcon, LockIcon } from './App';
 
 const IncognitoIcon = () => (
@@ -10,63 +11,108 @@ const IncognitoIcon = () => (
   </svg>
 );
 
-const CATEGORY_OPTIONS = ['Bribery', 'Embezzlement', 'Abuse of Power', 'Fraud', 'Other'];
-const DELAY_OPTIONS = [
-  { label: 'Publish Immediately', hours: 0 },
-  { label: '24 Hours', hours: 24 },
-  { label: '3 Days', hours: 72 },
-  { label: '7 Days', hours: 168 },
+// ⚠️ PLACEHOLDER — replace with your real report_category enum values from Supabase
+// (Database → Enumerated Types → report_category)
+const CATEGORY_OPTIONS = [
+  { value: 'bribery', label: 'Bribery' },
+  { value: 'embezzlement', label: 'Embezzlement' },
+  { value: 'abuse_of_power', label: 'Abuse of Power' },
+  { value: 'fraud', label: 'Fraud' },
+  { value: 'other', label: 'Other' },
 ];
 
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api';
+
+interface StoredCitizen {
+  citizen_id: string;
+  name: string;
+  email: string;
+}
+
 export default function AnonymousSubmission() {
+  const navigate = useNavigate();
+
+  const [citizen, setCitizen] = useState<StoredCitizen | null>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState(CATEGORY_OPTIONS[0]);
-  const [reporterName, setReporterName] = useState('');
-  const [reporterNid, setReporterNid] = useState('');
-  const [reporterPhone, setReporterPhone] = useState('');
-  const [delayHours, setDelayHours] = useState(0);
+  const [category, setCategory] = useState(CATEGORY_OPTIONS[0].value);
+  const [incidentDateTime, setIncidentDateTime] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // Require login before allowing access to this page
+  useEffect(() => {
+    const stored = localStorage.getItem('citizen');
+    if (!stored) {
+      navigate('/login');
+      return;
+    }
+    try {
+      setCitizen(JSON.parse(stored));
+    } catch {
+      localStorage.removeItem('citizen');
+      navigate('/login');
+    } finally {
+      setCheckingAuth(false);
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!citizen) return;
+
     setIsSubmitting(true);
     setSubmitStatus('idle');
+    setErrorMessage('');
 
     try {
-      const res = await fetch('http://localhost:5000/api/reports', {
+      const res = await fetch(`${API_URL}/reports`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          citizenId: citizen.citizen_id,
           title,
           description,
           category,
+          incidentDateTime: incidentDateTime || null,
           isAnonymous,
-          reporterName: isAnonymous ? undefined : reporterName,
-          reporterNid: isAnonymous ? undefined : reporterNid,
-          reporterPhone: isAnonymous ? undefined : reporterPhone,
-          publishDelayHours: delayHours,
         }),
       });
 
-      if (!res.ok) throw new Error('Submission failed');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Submission failed');
+      }
 
       await res.json();
       setSubmitStatus('success');
       setTitle('');
       setDescription('');
-      setReporterName('');
-      setReporterNid('');
-      setReporterPhone('');
+      setIncidentDateTime('');
+      setCategory(CATEGORY_OPTIONS[0].value);
     } catch (err) {
       console.error(err);
+      setErrorMessage(err instanceof Error ? err.message : 'Submission failed');
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  // Wait until we've confirmed login state before rendering the form
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-bg-dark flex items-center justify-center">
+        <span className="inline-block w-6 h-6 border-2 border-brand-teal border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!citizen) return null; // redirect already triggered
 
   return (
     <div className="min-h-screen bg-bg-dark text-on-surface flex flex-col font-inter px-6 py-16">
@@ -81,13 +127,17 @@ export default function AnonymousSubmission() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="glass-card glass-border p-8 mt-8 space-y-6">
+        <p className="text-xs text-on-surface/40 mb-6">
+          Signed in as <span className="text-brand-teal">{citizen.email}</span> — your account stays linked internally for accountability, but your identity is hidden from public view when Anonymous Mode is on.
+        </p>
+
+        <form onSubmit={handleSubmit} className="glass-card glass-border p-8 mt-2 space-y-6">
           {/* Anonymous Toggle */}
           <div className="flex items-center justify-between p-4 rounded-lg bg-black/30 border border-white/5">
             <div>
-              <p className="text-sm font-semibold text-white">Strip Personal Identifiers</p>
+              <p className="text-sm font-semibold text-white">Submit Anonymously</p>
               <p className="text-xs text-on-surface/50 mt-1">
-                Name, NID, phone, and device fingerprint will be fully removed before saving.
+                Your identity will not be shown alongside this report.
               </p>
             </div>
             <button
@@ -122,8 +172,23 @@ export default function AnonymousSubmission() {
               onChange={(e) => setCategory(e.target.value)}
               className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-lg text-on-surface focus:outline-none focus:border-brand-teal/40"
             >
-              {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
+              {CATEGORY_OPTIONS.map((c) => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
             </select>
+          </div>
+
+          {/* Incident Date/Time */}
+          <div>
+            <label className="block text-xs font-bold tracking-widest uppercase text-on-surface/60 mb-2">
+              Incident Date &amp; Time
+            </label>
+            <input
+              type="datetime-local"
+              value={incidentDateTime}
+              onChange={(e) => setIncidentDateTime(e.target.value)}
+              className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-lg text-on-surface focus:outline-none focus:border-brand-teal/40"
+            />
           </div>
 
           {/* Description */}
@@ -137,62 +202,6 @@ export default function AnonymousSubmission() {
               placeholder="Describe what happened, when, and where"
               required
             />
-          </div>
-
-          {/* Reporter details — only shown if NOT anonymous */}
-          {!isAnonymous && (
-            <div className="space-y-4 p-4 rounded-lg bg-brand-red/5 border border-brand-red/10">
-              <p className="text-xs text-brand-red font-semibold">
-                ⚠ Identity fields will be stored since Anonymous Mode is off.
-              </p>
-              <input
-                type="text"
-                value={reporterName}
-                onChange={(e) => setReporterName(e.target.value)}
-                className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-lg text-on-surface placeholder:text-on-surface/30 focus:outline-none focus:border-brand-teal/40"
-                placeholder="Full name"
-              />
-              <input
-                type="text"
-                value={reporterNid}
-                onChange={(e) => setReporterNid(e.target.value)}
-                className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-lg text-on-surface placeholder:text-on-surface/30 focus:outline-none focus:border-brand-teal/40"
-                placeholder="NID number"
-              />
-              <input
-                type="text"
-                value={reporterPhone}
-                onChange={(e) => setReporterPhone(e.target.value)}
-                className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-lg text-on-surface placeholder:text-on-surface/30 focus:outline-none focus:border-brand-teal/40"
-                placeholder="Phone number"
-              />
-            </div>
-          )}
-
-          {/* Time-delayed publishing */}
-          <div>
-            <label className="block text-xs font-bold tracking-widest uppercase text-on-surface/60 mb-2">
-              Publish Delay
-            </label>
-            <p className="text-xs text-on-surface/50 mb-3">
-              Adds a buffer before your report becomes publicly visible, to protect you from being singled out immediately after submission.
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              {DELAY_OPTIONS.map((opt) => (
-                <button
-                  key={opt.hours}
-                  type="button"
-                  onClick={() => setDelayHours(opt.hours)}
-                  className={`px-3 py-2.5 rounded-lg text-xs font-semibold border transition-colors ${
-                    delayHours === opt.hours
-                      ? 'bg-brand-teal/15 border-brand-teal/40 text-brand-teal'
-                      : 'bg-white/[0.02] border-white/10 text-on-surface/60 hover:border-white/20'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
           </div>
 
           {/* Submit */}
@@ -216,7 +225,9 @@ export default function AnonymousSubmission() {
             </p>
           )}
           {submitStatus === 'error' && (
-            <p className="text-xs text-brand-red text-center">Submission failed — is the backend running?</p>
+            <p className="text-xs text-brand-red text-center">
+              {errorMessage || 'Submission failed — is the backend running?'}
+            </p>
           )}
         </form>
       </div>

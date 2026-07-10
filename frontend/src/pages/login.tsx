@@ -1,46 +1,61 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShieldIcon, LockIcon, LogoIcon } from './App'; // Import shared icons
+import { ShieldIcon, LockIcon, LogoIcon } from './App';
+
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Login:', { email, password });
+    setErrorMessage('');
+
+    try {
+      const res = await fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Login failed');
+      }
+
+      const data = await res.json();
+      localStorage.setItem('citizen', JSON.stringify(data.citizen));
+      navigate('/');
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : 'Login failed');
+    } finally {
       setIsLoading(false);
-      navigate('/'); // Redirect to homepage
-    }, 1500);
+    }
   };
 
   return (
     <div className="min-h-screen bg-bg-dark text-on-surface flex flex-col font-inter selection:bg-brand-red/30 selection:text-brand-red">
-      
-      {/* Header with logo and navigation */}
+
       <header className="sticky top-0 z-50 glass-card glass-border border-b border-white/5 backdrop-blur-md">
         <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
             <LogoIcon />
             <span className="font-sora font-bold text-lg tracking-tight">Truth Uncovered</span>
           </Link>
-          
+
           <Link to="/signup" className="text-sm font-medium px-5 py-2 bg-brand-red text-white hover:bg-brand-red/90 rounded-lg interactive-hover font-semibold">
             Sign Up
           </Link>
         </div>
       </header>
 
-      {/* Login Form */}
       <section className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-red/10 border border-brand-red/20 text-brand-red text-[11px] font-bold tracking-widest uppercase mb-8">
             <span className="w-2 h-2 rounded-full bg-brand-red animate-ping" />
             Secure Access
@@ -86,6 +101,10 @@ export default function Login() {
                 </div>
               </div>
 
+              {errorMessage && (
+                <p className="text-xs text-brand-red text-center">{errorMessage}</p>
+              )}
+
               <button
                 type="submit"
                 disabled={isLoading}
@@ -117,7 +136,6 @@ export default function Login() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="border-t border-white/5 py-6 px-6 bg-black/40">
         <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-on-surface/40 text-center md:text-left">

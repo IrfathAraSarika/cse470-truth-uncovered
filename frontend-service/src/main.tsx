@@ -1,11 +1,11 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import AnonymousSubmission from './annynomous.tsx'
 import './index.css'
 import App from './App.tsx'
 import Login from './login.tsx'
 import Signup from './signup.tsx'
+import AnonymousSubmission from './annynomous.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

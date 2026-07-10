@@ -2,53 +2,66 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShieldIcon, LogoIcon } from './App';
 
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api';
+
 export default function Signup() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setErrorMessage('');
+
     if (password !== confirmPassword) {
-      alert('Passwords do not match!');
+      setErrorMessage('Passwords do not match!');
       return;
     }
 
     setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Signup:', { name, email, password });
+
+    try {
+      const res = await fetch(`${API_URL}/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Signup failed');
+      }
+
+      navigate('/login');
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : 'Signup failed');
+    } finally {
       setIsLoading(false);
-      navigate('/login'); // Redirect to login
-    }, 1500);
+    }
   };
 
   return (
     <div className="min-h-screen bg-bg-dark text-on-surface flex flex-col font-inter selection:bg-brand-red/30 selection:text-brand-red">
-      
-      {/* Header */}
+
       <header className="sticky top-0 z-50 glass-card glass-border border-b border-white/5 backdrop-blur-md">
         <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
             <LogoIcon />
             <span className="font-sora font-bold text-lg tracking-tight">Truth Uncovered</span>
           </Link>
-          
+
           <Link to="/login" className="text-sm font-medium px-5 py-2 bg-brand-red text-white hover:bg-brand-red/90 rounded-lg interactive-hover font-semibold">
             Sign In
           </Link>
         </div>
       </header>
 
-      {/* Signup Form */}
       <section className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-teal/10 border border-brand-teal/20 text-brand-teal text-[11px] font-bold tracking-widest uppercase mb-8">
             <span className="w-2 h-2 rounded-full bg-brand-teal animate-pulse" />
             Join the Movement
@@ -137,6 +150,10 @@ export default function Signup() {
                 </label>
               </div>
 
+              {errorMessage && (
+                <p className="text-xs text-brand-red text-center">{errorMessage}</p>
+              )}
+
               <button
                 type="submit"
                 disabled={isLoading}
@@ -168,7 +185,6 @@ export default function Signup() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="border-t border-white/5 py-6 px-6 bg-black/40">
         <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-on-surface/40 text-center md:text-left">
