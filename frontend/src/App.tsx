@@ -1,4 +1,7 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import AnonymousSubmissionPage from './pages/AnonymousSubmissionPage';
 
 // Dummy page components just for the template
 const Home = () => (
@@ -27,8 +30,10 @@ function App() {
       {/* The actual pages */}
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/submit-report" element={<ReportSubmissionPage />} />
         <Route path="/chat" element={<Chat />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/submit-anonymous" element={<AnonymousSubmissionPage />} />
       </Routes>
     </BrowserRouter>
   );
