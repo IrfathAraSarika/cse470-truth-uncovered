@@ -1,7 +1,9 @@
+// React hooks and local asset imports
 import { useState, useEffect } from 'react';
 import zkPadlock from './assets/zk_padlock.png';
 
-// Custom SVG Icons to avoid any external icon library dependencies and guarantee compile success.
+// Custom SVG Icons to avoid external dependencies and ensure fast compilation
+
 const LogoIcon = () => (
   <svg className="w-8 h-8 text-brand-red animate-pulse" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
@@ -87,10 +89,12 @@ const GlobeIcon = () => (
   </svg>
 );
 
+// Main Application component hosting all features
 export default function App() {
-  // Identity Protection Upload Demo State
+  // Identity Protection Upload Demo State (tracks file selection, progress, and redacted fields)
   const [file, setFile] = useState<File | null>(null);
   const [isScrubbing, setIsScrubbing] = useState(false);
+
   const [scrubProgress, setScrubProgress] = useState(0);
   const [scrubbedFields, setScrubbedFields] = useState<string[]>([]);
   const [isScrubComplete, setIsScrubComplete] = useState(false);
@@ -111,8 +115,10 @@ export default function App() {
     setIsScrubComplete(false);
   };
 
+  // Effect simulating step-by-step EXIF & metadata scrubbing animation in the browser
   useEffect(() => {
     if (isScrubbing) {
+
       const interval = setInterval(() => {
         setScrubProgress((prev) => {
           const next = prev + 2.5;
@@ -147,7 +153,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-bg-dark text-on-surface flex flex-col font-inter selection:bg-brand-red/30 selection:text-brand-red">
       
-      {/* Header */}
+      {/* Header: Contains logo, navigation links, and auth action buttons */}
       <header className="sticky top-0 z-50 glass-card glass-border border-b border-white/5 backdrop-blur-md">
         <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -172,7 +178,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero Section: Introduces platform value proposition and highlights secure whistleblowing */}
       <section className="relative pt-20 pb-16 px-6 max-w-[1200px] mx-auto text-center flex flex-col items-center">
         
         {/* Live Active Badge */}
@@ -227,7 +233,7 @@ export default function App() {
 
       </section>
 
-      {/* Platform Architecture */}
+      {/* Platform Architecture: Grid section detailing the five core secure architecture modules */}
       <section id="platform" className="py-20 bg-black/20 border-t border-white/5 px-6">
         <div className="max-w-[1200px] mx-auto">
           
@@ -323,7 +329,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* Identity Protection File Upload Component (Premium Interactive Demo) */}
+      {/* Identity Protection Demo: Interactive client-side metadata scrubber and file uploader simulator */}
       <section id="uploader" className="py-20 px-6 max-w-[1200px] mx-auto">
         <div className="glass-card glass-border glass-glow p-8 md:p-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -447,7 +453,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* CTA Box */}
+      {/* CTA Box: Encourages user conversion and active participation in the movement */}
       <section id="impact" className="py-12 px-6 max-w-[1200px] mx-auto w-full">
         <div className="glass-card glass-border p-8 md:p-12 text-center flex flex-col items-center bg-gradient-to-b from-white/[0.04] to-transparent">
           <h2 className="font-sora text-3xl md:text-4xl font-bold tracking-tight mb-4 max-w-xl">
@@ -467,7 +473,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* Footer: Legal rights, partner details, and global security links */}
       <footer className="mt-auto border-t border-white/5 py-12 px-6 bg-black/40">
         <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
           
