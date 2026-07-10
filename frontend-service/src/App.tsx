@@ -477,7 +477,7 @@ export default function App() {
               <span className="font-sora font-bold text-lg tracking-tight text-white">Truth Uncovered</span>
             </div>
             <p className="text-xs text-on-surface/40 text-center md:text-left max-w-xs">
-              © 2024 Truth Uncovered. Secure & Anonymous Whistleblowing. All rights reserved.
+              © 2026 Truth Uncovered. Secure & Anonymous Whistleblowing. All rights reserved.
             </p>
           </div>
 
