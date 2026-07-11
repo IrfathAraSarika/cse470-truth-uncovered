@@ -100,7 +100,7 @@ export default function LandingPage() {
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [isSimulating, activeStep, metadata.length]);
+  }, [isSimulating, activeStep, metadata.length, simulationSteps.length]);
 
   return (
     <div className="min-h-screen bg-[#080808] text-[#e5e2e1] font-sans antialiased selection:bg-[#ff5634]/30 selection:text-[#ffb4a4] overflow-x-hidden">
@@ -135,7 +135,7 @@ export default function LandingPage() {
           {/* Actions */}
           <div className="flex items-center gap-6">
             <Link to="/login" className="text-base font-bold text-gray-300 hover:text-white transition-colors">
-              Citizen Login
+              Login
             </Link>
             <Link 
               to="/signup" 

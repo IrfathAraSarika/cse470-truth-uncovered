@@ -34,7 +34,7 @@ Copy the URI connection string. Prefer `Session pooler` or `Transaction pooler` 
 Then create this file:
 
 ```text
-backend-service/.env
+backend/.env.development
 ```
 
 Use this format:
@@ -45,7 +45,7 @@ DATABASE_URL="postgresql://postgres.zpsciwuqwvnimktpedri:PASSWORD@aws-0-REGION.p
 
 ## 4. Run the Database Check
 
-From `backend-service`:
+From `backend`:
 
 ```bash
 npm run db:check

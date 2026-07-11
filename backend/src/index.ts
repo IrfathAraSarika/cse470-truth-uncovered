@@ -1,20 +1,33 @@
-import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
-
-// Load the development environment variables
-dotenv.config({ path: '.env.development' });
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import { config } from './config.js';
+import { pool } from './models/database.js';
+import loginRoutes from './routes/loginRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
+import signupRoutes from './routes/signupRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: config.frontendOrigin, credentials: true }));
+app.use(cookieParser());
 app.use(express.json());
 
-const PORT = process.env.PORT || 5000;
+app.use('/api/login', loginRoutes);
+app.use('/api/signup', signupRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/admin', adminRoutes);
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'Backend is running!', db: process.env.DATABASE_URL ? 'Connected' : 'Not Connected' });
+app.get('/api/health', async (_request, response, next) => {
+  try {
+    const result = await pool.query('select now() as database_time');
+    response.json({ status: 'ok', database: 'connected', databaseTime: result.rows[0].database_time });
+  } catch (error) { next(error); }
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Backend running on http://localhost:${PORT}`);
+app.use((error: unknown, _request: express.Request, response: express.Response, _next: express.NextFunction) => {
+  console.error(error);
+  response.status(500).json({ error: 'Internal server error.' });
 });
+
+app.listen(config.port, () => console.log(`Backend running on http://localhost:${config.port}`));
