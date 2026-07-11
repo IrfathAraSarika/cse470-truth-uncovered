@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldIcon, LockIcon } from './App';
+
 
 const IncognitoIcon = () => (
   <svg className="w-6 h-6 text-brand-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -214,14 +214,14 @@ export default function AnonymousSubmission() {
               <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
-                <ShieldIcon className="w-4 h-4" /> Submit Report Securely
+                Submit Report Securely
               </>
             )}
           </button>
 
           {submitStatus === 'success' && (
             <p className="text-xs text-brand-teal text-center flex items-center justify-center gap-1.5">
-              <LockIcon className="w-3.5 h-3.5" /> Report submitted and secured.
+               Report submitted and secured.
             </p>
           )}
           {submitStatus === 'error' && (

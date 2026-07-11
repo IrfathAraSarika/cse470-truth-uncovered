@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import AnonymousSubmissionPage from './pages/AnonymousSubmissionPage';
+import Login from './pages/login';
+import Signup from './pages/signup';
+import AnonymousSubmissionPage from './pages/annynomous';
 
 // Dummy page components just for the template
 const Home = () => (
