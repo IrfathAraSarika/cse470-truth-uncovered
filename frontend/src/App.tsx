@@ -5,6 +5,7 @@ import AnonymousSubmissionPage from './pages/AnonymousSubmissionPage';
 import LandingPage from './pages/LandingPage';
 import AdminVerificationPage from './pages/AdminVerificationPage';
 import UserDashboardPage from './pages/UserDashboardPage';
+import MyReportsPage from './pages/MyReportsPage';
 
 // Dummy page components just for the template
 const Chat = () => (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/submit-report" element={<AnonymousSubmissionPage />} />
         <Route path="/admin/verification" element={<AdminVerificationPage />} />
         <Route path="/dashboard" element={<UserDashboardPage />} />
+        <Route path="/my-reports" element={<MyReportsPage />} />
       </Routes>
     </BrowserRouter>
   );

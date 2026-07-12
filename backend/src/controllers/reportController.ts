@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
-import { createReport, listReports } from '../models/reportModel.js';
+import { createReport, listReports, listReportsByCitizen } from '../models/reportModel.js';
+import type { AuthenticatedRequest } from '../middlewares/authMiddleware.js';
 
 const categoryMap: Record<string, string> = { bribery: 'bribery', embezzlement: 'corruption', abuse_of_power: 'corruption', fraud: 'corruption', other: 'other' };
 
@@ -17,3 +18,15 @@ export async function submitReport(request: Request, response: Response, next: N
 export async function getReports(_request: Request, response: Response, next: NextFunction) {
   try { response.json({ reports: await listReports() }); } catch (error) { next(error); }
 }
+
+export async function getMyReports(request: AuthenticatedRequest, response: Response, next: NextFunction) {
+  const { citizenId } = request.query;
+  if (!citizenId || typeof citizenId !== 'string') {
+    response.status(400).json({ error: 'citizenId query parameter is required.' }); return;
+  }
+  try {
+    const reports = await listReportsByCitizen(citizenId);
+    response.json({ reports });
+  } catch (error) { next(error); }
+}
+

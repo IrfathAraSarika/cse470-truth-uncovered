@@ -9,6 +9,15 @@ export function createSession(response: Response, userId: string, role: string) 
   response.cookie('truth_uncovered_session', token, { httpOnly: true, secure: config.isProduction, sameSite: config.isProduction ? 'none' : 'lax', maxAge: 28_800_000, path: '/' });
 }
 
+export function requireAuth(request: AuthenticatedRequest, response: Response, next: NextFunction) {
+  const token = request.cookies?.truth_uncovered_session as string | undefined;
+  if (!token) { response.status(401).json({ error: 'Authentication required.' }); return; }
+  try {
+    request.auth = jwt.verify(token, config.jwtSecret) as { userId: string; role: string };
+    next();
+  } catch { response.status(401).json({ error: 'Session expired or invalid.' }); }
+}
+
 export function requireAdmin(request: AuthenticatedRequest, response: Response, next: NextFunction) {
   const token = request.cookies?.truth_uncovered_session as string | undefined;
   if (!token) { response.status(401).json({ error: 'Authentication required.' }); return; }
