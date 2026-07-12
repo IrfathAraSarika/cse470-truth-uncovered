@@ -19,7 +19,7 @@ export default function Login() {
       const data = await login(email, password);
       localStorage.setItem('user', JSON.stringify(data.user));
       if (data.citizen) localStorage.setItem('citizen', JSON.stringify(data.citizen));
-      navigate(data.user.role === 'admin' ? '/admin/verification' : '/');
+      navigate(data.user.role === 'admin' ? '/admin/verification' : '/dashboard');
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : 'Login failed');
     } finally {
