@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import AnonymousSubmissionPage from './pages/AnonymousSubmissionPage';
+import Login from './pages/login.tsx';
+import Signup from './pages/signup.tsx';
+import AnonymousSubmissionPage from './pages/annynomous.tsx';
+import BackendTest from './pages/BackendTest';
 
 // Dummy page components just for the template
 const Home = () => (
@@ -21,6 +22,12 @@ const Chat = () => (
 function App() {
   return (
     <BrowserRouter>
+      {/* SECTION: TESTING (REMOVE AFTER VALIDATION) */}
+      <div className="bg-red-50 p-2 text-center text-xs text-red-600 border-b border-red-200">
+        Testing Mode: <Link to="/test-connection" className="underline">Verify Backend Connection</Link>
+      </div>
+      {/* END TESTING SECTION */}
+
       {/* A simple navigation bar for your team to see routing in action */}
       <nav className="p-4 bg-gray-200 flex gap-4">
         <Link to="/" className="text-blue-600 hover:underline">Home</Link>
@@ -33,6 +40,7 @@ function App() {
         <Route path="/chat" element={<Chat />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/test-connection" element={<BackendTest />} />
         <Route path="/submit-anonymous" element={<AnonymousSubmissionPage />} />
       </Routes>
     </BrowserRouter>
