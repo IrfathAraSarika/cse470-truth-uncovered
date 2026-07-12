@@ -1,4 +1,4 @@
-import { supabase } from '../config/supabase';
+import { supabase } from '../config/supabase.js';
 
 // Defining the exact shape of the data based on your schema image
 export interface ReportPayload {

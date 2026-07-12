@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { insertReport, ReportPayload } from 'backend/src/model/reportModel.ts';
+import { insertReport, ReportPayload } from "../model/reportModel.js";
 
 export const submitReportController = async (req: Request, res: Response): Promise<void> => {
   try {
