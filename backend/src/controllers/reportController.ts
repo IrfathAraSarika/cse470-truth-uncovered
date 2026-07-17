@@ -1,6 +1,7 @@
 import type { NextFunction, Response } from 'express';
 import type { AuthenticatedRequest } from '../middlewares/authMiddleware.js';
-import { createReport, listReports, listReportsByUser } from '../models/reportModel.js';
+import { createReport, findDuplicateCandidates, listReports, listReportsByUser } from '../models/reportModel.js';
+import { screenReport } from '../services/reportScreeningService.js';
 
 const allowedCategories = new Set([
   'corruption', 'bribery', 'dowry', 'harassment', 'extortion',
@@ -23,7 +24,7 @@ export async function submitReport(request: AuthenticatedRequest, response: Resp
   }
 
   try {
-    const report = await createReport(request.auth.userId, {
+    const normalizedReport = {
       title: title.trim(),
       description: description.trim(),
       category,
@@ -31,8 +32,11 @@ export async function submitReport(request: AuthenticatedRequest, response: Resp
       isAnonymous: Boolean(isAnonymous),
       district: typeof district === 'string' && district.trim() ? district.trim() : null,
       address: typeof address === 'string' && address.trim() ? address.trim() : null,
-    });
-    response.status(201).json({ report });
+    };
+    const candidates = await findDuplicateCandidates(normalizedReport.category, normalizedReport.district);
+    const screening = screenReport(normalizedReport, candidates);
+    const report = await createReport(request.auth.userId, normalizedReport, screening);
+    response.status(201).json({ report, screening });
   } catch (error) {
     next(error);
   }

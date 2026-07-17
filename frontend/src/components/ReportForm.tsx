@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShieldIcon } from './AppIcons';
-import { submitReport } from '../services/reportApi';
+import { submitReport, type ReportScreening, type ReportSubmission } from '../services/reportApi';
+import { getQueuedReports, queueReport, syncQueuedReports } from '../services/offlineReportQueue';
 
 const categories = [
   ['corruption', 'Corruption'],
@@ -29,6 +30,47 @@ export default function ReportForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [reportId, setReportId] = useState('');
+  const [screening, setScreening] = useState<ReportScreening | null>(null);
+  const [online, setOnline] = useState(navigator.onLine);
+  const [queuedCount, setQueuedCount] = useState(getQueuedReports().length);
+
+  const refreshQueue = useCallback(() => setQueuedCount(getQueuedReports().length), []);
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setOnline(true);
+      void syncQueuedReports().then(refreshQueue);
+    };
+    const handleOffline = () => setOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('truth-report-queue-change', refreshQueue);
+    if (navigator.onLine) void syncQueuedReports().then(refreshQueue);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('truth-report-queue-change', refreshQueue);
+    };
+  }, [refreshQueue]);
+
+  const buildPayload = (): ReportSubmission => ({
+    title,
+    description,
+    category,
+    incidentDateTime: incidentDate ? new Date(`${incidentDate}T${incidentTime || '00:00'}`).toISOString() : null,
+    isAnonymous,
+    district,
+    address,
+  });
+
+  const saveOffline = () => {
+    if (!title.trim() || !description.trim()) {
+      setError('Add a title and detailed statement before saving the offline draft.');
+      return;
+    }
+    queueReport(buildPayload());
+    setError('');
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -37,21 +79,19 @@ export default function ReportForm() {
     setReportId('');
 
     try {
-      const incidentDateTime = incidentDate
-        ? new Date(`${incidentDate}T${incidentTime || '00:00'}`).toISOString()
-        : null;
-      const result = await submitReport({
-        title,
-        description,
-        category,
-        incidentDateTime,
-        isAnonymous,
-        district,
-        address,
-      });
+      if (!navigator.onLine) {
+        queueReport(buildPayload());
+        return;
+      }
+      const result = await submitReport(buildPayload());
       setReportId(result.report.report_id);
+      setScreening(result.screening);
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'Report submission failed.');
+      if (!navigator.onLine || requestError instanceof TypeError) {
+        queueReport(buildPayload());
+      } else {
+        setError(requestError instanceof Error ? requestError.message : 'Report submission failed.');
+      }
     } finally {
       setLoading(false);
     }
@@ -61,6 +101,10 @@ export default function ReportForm() {
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 border border-white/10 rounded-lg bg-white/[0.02] overflow-hidden">
+      <div className="px-6 md:px-8 py-3 border-b border-white/10 bg-black/20 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <span className={online ? 'text-brand-teal' : 'text-amber-300'}>{online ? 'Online - automatic sync available' : 'Offline - reports will be queued'}</span>
+        <span className="text-on-surface/50">{queuedCount} queued draft{queuedCount === 1 ? '' : 's'}</span>
+      </div>
       <section className="p-6 md:p-8 border-b border-white/10">
         <div className="flex items-center gap-3 mb-5">
           <span className="w-7 h-7 grid place-items-center rounded-full bg-brand-red text-white text-xs font-bold">1</span>
@@ -123,14 +167,18 @@ export default function ReportForm() {
           <div className="mt-5 p-4 border border-brand-teal/30 bg-brand-teal/5 rounded-lg">
             <p className="text-sm font-bold text-brand-teal">Report submitted successfully.</p>
             <p className="mt-1 text-xs text-on-surface/60">Report ID: {reportId}</p>
+            {screening && <p className="mt-2 text-xs text-on-surface/60">Duplicate score {screening.duplicateScore}% - moderation score {screening.moderationScore}% - {screening.possibleDuplicates.length} possible match{screening.possibleDuplicates.length === 1 ? '' : 'es'}.</p>}
           </div>
         )}
 
         <div className="mt-6 flex flex-col sm:flex-row justify-between gap-4">
           <Link to="/evidence-vault" className="px-5 py-3 border border-brand-teal/40 text-brand-teal rounded-lg text-sm font-bold text-center">Continue to Evidence Vault</Link>
-          <button disabled={loading} className="px-6 py-3 bg-brand-red text-white rounded-lg text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50">
-            <ShieldIcon className="w-4 h-4" /> {loading ? 'Submitting...' : 'Submit Report'}
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button type="button" onClick={saveOffline} className="px-5 py-3 border border-white/15 text-white rounded-lg text-sm font-bold">Save Offline Draft</button>
+            <button disabled={loading} className="px-6 py-3 bg-brand-red text-white rounded-lg text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+              <ShieldIcon className="w-4 h-4" /> {loading ? 'Submitting...' : online ? 'Submit Report' : 'Queue Report'}
+            </button>
+          </div>
         </div>
       </section>
     </form>

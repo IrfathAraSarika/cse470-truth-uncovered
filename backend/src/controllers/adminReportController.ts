@@ -4,7 +4,7 @@ import { getAdminReport, listAdminReports, saveReview } from '../models/adminRep
 
 export async function getReports(request: AuthenticatedRequest, response: Response, next: NextFunction) {
   const status = typeof request.query.status === 'string' ? request.query.status : 'all';
-  if (!['all', 'submitted', 'pending_verification', 'verified', 'rejected'].includes(status)) { response.status(400).json({ error: 'Invalid status.' }); return; }
+  if (!['all', 'submitted', 'pending_verification', 'hidden', 'verified', 'rejected'].includes(status)) { response.status(400).json({ error: 'Invalid status.' }); return; }
   try { response.json({ reports: await listAdminReports(status) }); } catch (error) { next(error); }
 }
 

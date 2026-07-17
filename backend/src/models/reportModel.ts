@@ -1,4 +1,5 @@
 import { pool } from './database.js';
+import type { DuplicateCandidate, ReportScreeningResult } from '../services/reportScreeningService.js';
 
 export interface NewReport {
   title: string;
@@ -10,7 +11,27 @@ export interface NewReport {
   address: string | null;
 }
 
-export async function createReport(userId: string, report: NewReport) {
+export async function findDuplicateCandidates(category: string, district: string | null): Promise<DuplicateCandidate[]> {
+  const result = await pool.query(
+    `select r.report_id, r.title, r.description, r.category::text, l.district
+     from reports r
+     left join locations l on l.location_id = r.location_id
+     where r.status not in ('rejected', 'closed')
+       and (r.category::text = $1 or ($2::text is not null and lower(l.district) = lower($2)))
+     order by r.submission_date desc
+     limit 100`,
+    [category, district],
+  );
+  return result.rows.map((row) => ({
+    reportId: row.report_id as string,
+    title: row.title as string,
+    description: row.description as string,
+    category: row.category as string,
+    district: row.district as string | null,
+  }));
+}
+
+export async function createReport(userId: string, report: NewReport, screening: ReportScreeningResult) {
   const client = await pool.connect();
   try {
     await client.query('begin');
@@ -33,11 +54,27 @@ export async function createReport(userId: string, report: NewReport) {
     }
 
     const result = await client.query(
-      `insert into reports (citizen_id, location_id, title, description, category, incident_datetime, is_anonymous, status)
-       values ($1, $2, $3, $4, $5::report_category, $6, $7, 'submitted')
+      `insert into reports (citizen_id, location_id, title, description, category, incident_datetime, is_anonymous, status, duplicate_score)
+       values ($1, $2, $3, $4, $5::report_category, $6, $7, $8::report_status, $9)
        returning report_id, title, category, status, is_anonymous, submission_date`,
-      [citizenResult.rows[0].citizen_id, locationId, report.title, report.description, report.category, report.incidentDateTime, report.isAnonymous],
+      [citizenResult.rows[0].citizen_id, locationId, report.title, report.description, report.category, report.incidentDateTime, report.isAnonymous, screening.status, screening.duplicateScore],
     );
+
+    const createdReportId = result.rows[0].report_id as string;
+    for (const duplicate of screening.possibleDuplicates) {
+      await client.query(
+        `insert into duplicate_detections (report_id, possible_duplicate_report_id, similarity_score)
+         values ($1, $2, $3)`,
+        [createdReportId, duplicate.reportId, duplicate.score],
+      );
+    }
+    for (const reason of screening.reasons) {
+      await client.query(
+        `insert into flagged_contents (target_type, target_id, report_id, reason)
+         values ('report', $1, $1, $2)`,
+        [createdReportId, reason],
+      );
+    }
 
     await client.query('commit');
     return result.rows[0];

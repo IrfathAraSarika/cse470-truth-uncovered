@@ -23,8 +23,20 @@ export interface Report {
   updated_at: string | null;
 }
 
+export interface ReportScreening {
+  duplicateScore: number;
+  moderationScore: number;
+  reasons: string[];
+  possibleDuplicates: Array<{ reportId: string; title: string; score: number }>;
+}
+
+export interface ReportSubmissionResult {
+  report: { report_id: string; status: string };
+  screening: ReportScreening;
+}
+
 export const submitReport = (report: ReportSubmission) =>
-  apiRequest<{ report: { report_id: string } }>('/reports', { method: 'POST', body: JSON.stringify(report) });
+  apiRequest<ReportSubmissionResult>('/reports', { method: 'POST', body: JSON.stringify(report) });
 
 export const getMyReports = () =>
   apiRequest<{ reports: Report[] }>('/reports/my');

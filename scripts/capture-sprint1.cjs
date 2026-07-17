@@ -8,6 +8,11 @@ const fs = require('fs');
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
 
+  await page.goto('http://localhost:5173/');
+  await page.evaluate(() => {
+    localStorage.setItem('user', JSON.stringify({ user_id: 'demo-user', name: 'Demo User', email: 'demo@truth.local', role: 'citizen' }));
+    localStorage.setItem('citizen', JSON.stringify({ citizen_id: 'demo-citizen', name: 'Demo User', email: 'demo@truth.local' }));
+  });
   await page.goto('http://localhost:5173/submit-report');
   await page.getByPlaceholder('Brief title of the incident').fill('Unauthorized procurement payment at district office');
   await page.locator('input[type=date]').fill('2026-07-10');
@@ -22,8 +27,6 @@ const fs = require('fs');
   await page.waitForTimeout(900);
   await page.screenshot({ path: path.join(output, '02-encrypted-evidence-vault.png'), fullPage: true });
 
-  await page.goto('http://localhost:5173/');
-  await page.evaluate(() => localStorage.setItem('citizen', JSON.stringify({ citizen_id: 'demo-citizen', name: 'Demo User', email: 'demo@truth.local' })));
   await page.goto('http://localhost:5173/submit-anonymous');
   await page.getByPlaceholder('Brief summary of the incident').fill('Anonymous report of bribery');
   await page.getByPlaceholder('Describe what happened, when, and where').fill('A payment was requested to process a routine public service application.');
@@ -33,8 +36,11 @@ const fs = require('fs');
   await page.screenshot({ path: path.join(output, '04-case-lifecycle-tracker.png'), fullPage: true });
 
   await page.goto('http://localhost:5173/login');
-  await page.getByPlaceholder('you@example.com').fill('iracus02@gmail.com');
-  await page.locator('input[type=password]').fill('Tuhin123$');
+  if (!process.env.SCREENSHOT_ADMIN_EMAIL || !process.env.SCREENSHOT_ADMIN_PASSWORD) {
+    throw new Error('Set SCREENSHOT_ADMIN_EMAIL and SCREENSHOT_ADMIN_PASSWORD before capturing the admin page.');
+  }
+  await page.getByPlaceholder('you@example.com').fill(process.env.SCREENSHOT_ADMIN_EMAIL);
+  await page.locator('input[type=password]').fill(process.env.SCREENSHOT_ADMIN_PASSWORD);
   await page.getByRole('button', { name: 'Sign In' }).click();
   await page.waitForURL('**/admin/verification');
   await page.evaluate(() => window.scrollTo(0, 0));

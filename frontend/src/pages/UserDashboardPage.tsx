@@ -41,6 +41,7 @@ export default function UserDashboardPage() {
               <Link to="/submit-report" className="inline-block px-5 py-3 bg-brand-red text-white rounded-lg text-sm font-bold">Submit a Report</Link>
               <Link to="/my-reports" className="inline-block px-5 py-3 border border-brand-teal/40 text-brand-teal rounded-lg text-sm font-bold">My Reports</Link>
               <Link to="/case-tracker" className="inline-block px-5 py-3 border border-white/15 text-white rounded-lg text-sm font-bold">Track a Case</Link>
+              <Link to="/offline-drafts" className="inline-block px-5 py-3 border border-white/15 text-white rounded-lg text-sm font-bold">Offline Drafts</Link>
             </div>
           ) : (
             <Link to="/" className="inline-block px-5 py-3 border border-brand-teal/40 text-brand-teal rounded-lg text-sm font-bold">Return Home</Link>

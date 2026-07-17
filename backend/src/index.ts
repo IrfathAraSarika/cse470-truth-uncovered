@@ -7,6 +7,7 @@ import loginRoutes from './routes/loginRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
 import signupRoutes from './routes/signupRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import caseRoutes from './routes/caseRoutes.js';
 
 const app = express();
 app.use(cors({ origin: config.frontendOrigin, credentials: true }));
@@ -17,6 +18,7 @@ app.use('/api/login', loginRoutes);
 app.use('/api/signup', signupRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/cases', caseRoutes);
 
 app.get('/api/health', async (_request, response, next) => {
   try {

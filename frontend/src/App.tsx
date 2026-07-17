@@ -9,6 +9,7 @@ import ReportSubmissionPage from './pages/ReportSubmissionPage';
 import EvidenceVaultPage from './pages/EvidenceVaultPage';
 import CaseTrackerPage from './pages/CaseTrackerPage';
 import MyReportsPage from './pages/MyReportsPage';
+import OfflineDraftsPage from './pages/OfflineDraftsPage';
 
 // Dummy page components just for the template
 const Chat = () => (
@@ -34,6 +35,7 @@ function App() {
         <Route path="/admin/verification" element={<AdminVerificationPage />} />
         <Route path="/dashboard" element={<UserDashboardPage />} />
         <Route path="/my-reports" element={<MyReportsPage />} />
+        <Route path="/offline-drafts" element={<OfflineDraftsPage />} />
       </Routes>
     </BrowserRouter>
   );
