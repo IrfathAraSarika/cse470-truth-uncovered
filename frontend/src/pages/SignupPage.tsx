@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShieldIcon, LogoIcon } from '../App';
-
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api';
+import { ShieldIcon, LogoIcon } from '../components/AppIcons';
+import { signup } from '../services/authApi';
 
 export default function Signup() {
   const [name, setName] = useState('');
@@ -25,17 +24,7 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || 'Signup failed');
-      }
-
+      await signup(name, email, password);
       navigate('/login');
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : 'Signup failed');

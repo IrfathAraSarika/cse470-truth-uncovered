@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldIcon, LockIcon } from '../App';
+import { ShieldIcon, LockIcon } from '../components/AppIcons';
+import { submitReport } from '../services/reportApi';
 
 const IncognitoIcon = () => (
   <svg className="w-6 h-6 text-brand-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -21,19 +22,27 @@ const CATEGORY_OPTIONS = [
   { value: 'other', label: 'Other' },
 ];
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api';
-
 interface StoredCitizen {
   citizen_id: string;
   name: string;
   email: string;
 }
 
+function readStoredCitizen(): StoredCitizen | null {
+  const stored = localStorage.getItem('citizen');
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored) as StoredCitizen;
+  } catch {
+    localStorage.removeItem('citizen');
+    return null;
+  }
+}
+
 export default function AnonymousSubmission() {
   const navigate = useNavigate();
 
-  const [citizen, setCitizen] = useState<StoredCitizen | null>(null);
-  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [citizen] = useState<StoredCitizen | null>(readStoredCitizen);
 
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [title, setTitle] = useState('');
@@ -46,20 +55,8 @@ export default function AnonymousSubmission() {
 
   // Require login before allowing access to this page
   useEffect(() => {
-    const stored = localStorage.getItem('citizen');
-    if (!stored) {
-      navigate('/login');
-      return;
-    }
-    try {
-      setCitizen(JSON.parse(stored));
-    } catch {
-      localStorage.removeItem('citizen');
-      navigate('/login');
-    } finally {
-      setCheckingAuth(false);
-    }
-  }, [navigate]);
+    if (!citizen) navigate('/login');
+  }, [citizen, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,25 +67,7 @@ export default function AnonymousSubmission() {
     setErrorMessage('');
 
     try {
-      const res = await fetch(`${API_URL}/reports`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          citizenId: citizen.citizen_id,
-          title,
-          description,
-          category,
-          incidentDateTime: incidentDateTime || null,
-          isAnonymous,
-        }),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || 'Submission failed');
-      }
-
-      await res.json();
+      await submitReport({ citizenId: citizen.citizen_id, title, description, category, incidentDateTime: incidentDateTime || null, isAnonymous });
       setSubmitStatus('success');
       setTitle('');
       setDescription('');
@@ -102,15 +81,6 @@ export default function AnonymousSubmission() {
       setIsSubmitting(false);
     }
   };
-
-  // Wait until we've confirmed login state before rendering the form
-  if (checkingAuth) {
-    return (
-      <div className="min-h-screen bg-bg-dark flex items-center justify-center">
-        <span className="inline-block w-6 h-6 border-2 border-brand-teal border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   if (!citizen) return null; // redirect already triggered
 

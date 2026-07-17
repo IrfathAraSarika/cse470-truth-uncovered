@@ -4,8 +4,8 @@ Truth Uncovered is structured as one GitHub repository with two deployable servi
 
 ```text
 truth-uncovered/
-├── frontend-service/        # Next.js + React frontend, deployable on Render
-├── backend-service/         # Node.js + Express API, deployable on Render
+├── frontend/                # React + Vite frontend
+├── backend/                 # Node.js + Express API
 ├── supabase/                # PostgreSQL schema and database migrations
 ├── docs/                    # Architecture and database design notes
 └── README.md
@@ -29,7 +29,6 @@ Frontend Service        Backend Service
 
 ## Service Responsibilities
 
-- `frontend-service`: Next.js pages, React components, dashboards, public views, forms, maps, and authentication UI.
-- `backend-service`: Express API, business logic, validation, authorization, report workflow, case workflow, analytics endpoints, and notification triggers.
+- `frontend`: React pages, reusable components, layouts, client-side state, and API services.
+- `backend`: Express routes, controllers, models, middleware, and backend services.
 - `supabase`: PostgreSQL schema, migrations, relational constraints, indexes, and database-level structure.
-
