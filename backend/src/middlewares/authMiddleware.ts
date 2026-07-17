@@ -15,7 +15,9 @@ export function requireAuth(request: AuthenticatedRequest, response: Response, n
   try {
     request.auth = jwt.verify(token, config.jwtSecret) as { userId: string; role: string };
     next();
-  } catch { response.status(401).json({ error: 'Session expired or invalid.' }); }
+  } catch {
+    response.status(401).json({ error: 'Session expired or invalid.' });
+  }
 }
 
 export function requireAdmin(request: AuthenticatedRequest, response: Response, next: NextFunction) {

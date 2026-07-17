@@ -5,12 +5,14 @@ import { getAdminReport, getAdminReports, submitAdminReview, type AdminReport, t
 
 const filters = ['all', 'submitted', 'pending_verification', 'verified', 'rejected'];
 const label = (value: string) => value.replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+const demoReport: AdminReport = { report_id: 'demo-report', title: 'Unofficial payment requested at district office', description: 'The reporter states that an official requested payment before accepting a routine public service application.', category: 'bribery', status: 'submitted', is_anonymous: true, submission_date: '2026-07-12T10:30:00Z', evidence_count: 2, review_count: 1 };
+const demoDetail: AdminReportDetail = { report: demoReport, evidence: [{ evidence_id: 'demo-evidence-1', file_type: 'image/png', file_size_bytes: 245000 }, { evidence_id: 'demo-evidence-2', file_type: 'application/pdf', file_size_bytes: 88000 }], reviews: [{ review_id: 'demo-review', decision: 'request_evidence', notes: 'Initial reviewer requested a clearer copy of the receipt.', admin_name: 'Review Admin', created_at: '2026-07-12T11:00:00Z' }] };
 
 export default function AdminVerificationPage() {
   const navigate = useNavigate();
-  const [reports, setReports] = useState<AdminReport[]>([]);
-  const [selectedId, setSelectedId] = useState('');
-  const [detail, setDetail] = useState<AdminReportDetail | null>(null);
+  const [reports, setReports] = useState<AdminReport[]>([demoReport]);
+  const [selectedId, setSelectedId] = useState('demo-report');
+  const [detail, setDetail] = useState<AdminReportDetail | null>(demoDetail);
   const [filter, setFilter] = useState('all');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
@@ -19,8 +21,9 @@ export default function AdminVerificationPage() {
   const loadReports = useCallback(async () => {
     try {
       const result = await getAdminReports(filter);
-      setReports(result.reports);
-      setSelectedId((current) => result.reports.some((report) => report.report_id === current) ? current : result.reports[0]?.report_id ?? '');
+      const availableReports = result.reports.length ? result.reports : [demoReport];
+      setReports(availableReports);
+      setSelectedId((current) => availableReports.some((report) => report.report_id === current) ? current : availableReports[0]?.report_id ?? '');
     } catch (requestError) {
       if (requestError instanceof Error && /Authentication|Administrator|Session/.test(requestError.message)) navigate('/login', { replace: true });
       else setError(requestError instanceof Error ? requestError.message : 'Could not load reports.');
@@ -29,19 +32,25 @@ export default function AdminVerificationPage() {
 
   useEffect(() => {
     void getAdminReports(filter).then((result) => {
-      setReports(result.reports);
-      setSelectedId((current) => result.reports.some((report) => report.report_id === current) ? current : result.reports[0]?.report_id ?? '');
+      const availableReports = result.reports.length ? result.reports : [demoReport];
+      setReports(availableReports);
+      setSelectedId((current) => availableReports.some((report) => report.report_id === current) ? current : availableReports[0]?.report_id ?? '');
     }).catch((requestError) => {
       if (requestError instanceof Error && /Authentication|Administrator|Session/.test(requestError.message)) navigate('/login', { replace: true });
       else setError(requestError instanceof Error ? requestError.message : 'Could not load reports.');
     });
   }, [filter, navigate]);
-  useEffect(() => { if (selectedId) void getAdminReport(selectedId).then(setDetail).catch((requestError) => setError(requestError.message)); }, [selectedId]);
+  useEffect(() => { if (selectedId) void (selectedId === 'demo-report' ? Promise.resolve(demoDetail) : getAdminReport(selectedId)).then(setDetail).catch((requestError) => setError(requestError.message)); }, [selectedId]);
 
   const review = async (decision: string) => {
     if (notes.trim().length < 3) { setError('Add review notes before submitting.'); return; }
     setSaving(true); setError('');
-    try { await submitAdminReview(selectedId, decision, notes); setNotes(''); await loadReports(); setDetail(await getAdminReport(selectedId)); }
+    try {
+      if (selectedId === 'demo-report') {
+        setDetail((current) => current ? { ...current, report: { ...current.report, status: decision === 'request_evidence' ? 'pending_verification' : decision }, reviews: [{ review_id: `demo-${Date.now()}`, decision, notes, admin_name: 'Iracus', created_at: new Date().toISOString() }, ...current.reviews] } : current);
+      } else { await submitAdminReview(selectedId, decision, notes); await loadReports(); setDetail(await getAdminReport(selectedId)); }
+      setNotes('');
+    }
     catch (requestError) { setError(requestError instanceof Error ? requestError.message : 'Review could not be saved.'); }
     finally { setSaving(false); }
   };

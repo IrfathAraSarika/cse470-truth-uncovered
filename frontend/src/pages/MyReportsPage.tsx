@@ -156,7 +156,7 @@ export default function MyReportsPage() {
     let cancelled = false;
     (async () => {
       try {
-        const data = await getMyReports(citizen.citizen_id);
+        const data = await getMyReports();
         if (!cancelled) setReports(data.reports);
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load reports.');

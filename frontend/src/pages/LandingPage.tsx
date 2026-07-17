@@ -254,12 +254,12 @@ export default function LandingPage() {
                     Guide-driven data collection ensuring reports are legally actionable and systemically categorised for maximum impact.
                   </p>
                 </div>
-                <a href="#builder" className="text-xs font-bold text-[#ffb4a4] tracking-widest uppercase flex items-center gap-1 hover:text-white transition-colors duration-200 mt-auto">
+                <Link to="/submit-report" className="text-xs font-bold text-[#ffb4a4] tracking-widest uppercase flex items-center gap-1 hover:text-white transition-colors duration-200 mt-auto">
                   Explore Module
                   <svg className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -277,12 +277,12 @@ export default function LandingPage() {
                     Secure multi-format file uploads protected by zero-knowledge encryption and automatic metadata scrubbing.
                   </p>
                 </div>
-                <a href="#uploader" className="text-xs font-bold text-[#00ADB5] tracking-widest uppercase flex items-center gap-1 hover:text-white transition-colors duration-200 mt-auto">
+                <Link to="/evidence-vault" className="text-xs font-bold text-[#00ADB5] tracking-widest uppercase flex items-center gap-1 hover:text-white transition-colors duration-200 mt-auto">
                   Secure Upload
                   <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                   </svg>
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -303,6 +303,7 @@ export default function LandingPage() {
                     IP obfuscation and burner credentials protect your physical identity during the entire process.
                   </p>
                 </div>
+                <Link to="/submit-anonymous" className="text-xs font-bold text-[#00ADB5] uppercase mt-4">Open Anonymous Mode</Link>
                 {/* Watermark */}
                 <div className="absolute right-[-20px] bottom-[-20px] text-[40px] font-black tracking-widest text-white/[0.015] select-none pointer-events-none font-sans uppercase">
                   Incognito
@@ -324,6 +325,7 @@ export default function LandingPage() {
                     Real-time status updates on report verification, media handoff, and legal escalation stages.
                   </p>
                 </div>
+                <Link to="/case-tracker" className="text-xs font-bold text-[#00ADB5] uppercase mt-4">Track a Case</Link>
               </div>
             </div>
 
@@ -342,6 +344,7 @@ export default function LandingPage() {
                     Decentralized verification by Independent NGOs to prevent single points of failure or corruption.
                   </p>
                 </div>
+                <Link to="/admin/verification" className="text-xs font-bold text-[#00ADB5] uppercase mt-4">Open Admin Panel</Link>
               </div>
             </div>
           </div>

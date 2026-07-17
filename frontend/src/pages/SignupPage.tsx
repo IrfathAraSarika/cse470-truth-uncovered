@@ -8,6 +8,8 @@ export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState('citizen');
+  const [affiliation, setAffiliation] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
@@ -24,7 +26,7 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      await signup(name, email, password);
+      await signup(name, email, password, role, affiliation);
       navigate('/login');
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : 'Signup failed');
@@ -65,6 +67,21 @@ export default function Signup() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-xs font-bold tracking-widest uppercase text-on-surface/60 mb-2">
+                  Account Role
+                </label>
+                <select
+                  value={role}
+                  onChange={(event) => setRole(event.target.value)}
+                  className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-lg text-on-surface focus:outline-none focus:border-brand-teal/40 transition-colors"
+                >
+                  <option value="citizen">Citizen</option>
+                  <option value="ngo_partner">NGO Partner</option>
+                  <option value="government_officer">Government Officer</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold tracking-widest uppercase text-on-surface/60 mb-2">
                   Full Name
                 </label>
                 <input
@@ -76,6 +93,21 @@ export default function Signup() {
                   required
                 />
               </div>
+
+              {role !== 'citizen' && (
+                <div>
+                  <label className="block text-xs font-bold tracking-widest uppercase text-on-surface/60 mb-2">
+                    {role === 'ngo_partner' ? 'Organization Name' : 'Department'}
+                  </label>
+                  <input
+                    type="text"
+                    value={affiliation}
+                    onChange={(event) => setAffiliation(event.target.value)}
+                    className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-lg text-on-surface placeholder:text-on-surface/30 focus:outline-none focus:border-brand-teal/40 transition-colors"
+                    required
+                  />
+                </div>
+              )}
 
               <div>
                 <label className="block text-xs font-bold tracking-widest uppercase text-on-surface/60 mb-2">

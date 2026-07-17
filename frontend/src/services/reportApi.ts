@@ -1,12 +1,14 @@
 import { apiRequest } from './apiClient';
 
 export interface ReportSubmission {
-  citizenId: string;
+  citizenId?: string;
   title: string;
   description: string;
   category: string;
   incidentDateTime: string | null;
   isAnonymous: boolean;
+  district?: string;
+  address?: string;
 }
 
 export interface Report {
@@ -24,6 +26,5 @@ export interface Report {
 export const submitReport = (report: ReportSubmission) =>
   apiRequest<{ report: { report_id: string } }>('/reports', { method: 'POST', body: JSON.stringify(report) });
 
-export const getMyReports = (citizenId: string) =>
-  apiRequest<{ reports: Report[] }>(`/reports/my?citizenId=${encodeURIComponent(citizenId)}`);
-
+export const getMyReports = () =>
+  apiRequest<{ reports: Report[] }>('/reports/my');
