@@ -77,6 +77,7 @@ export default function Signup() {
                   <option value="citizen">Citizen</option>
                   <option value="ngo_partner">NGO Partner</option>
                   <option value="government_officer">Government Officer</option>
+                  <option value="admin">Admin</option>
                 </select>
               </div>
 
@@ -97,7 +98,7 @@ export default function Signup() {
               {role !== 'citizen' && (
                 <div>
                   <label className="block text-xs font-bold tracking-widest uppercase text-on-surface/60 mb-2">
-                    {role === 'ngo_partner' ? 'Organization Name' : 'Department'}
+                    {role === 'ngo_partner' ? 'Organization Name' : role === 'admin' ? 'Employee ID / Department' : 'Department'}
                   </label>
                   <input
                     type="text"
