@@ -41,5 +41,18 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  // Legacy Mongoose-based prototypes kept for reference; not part of the
+  // Postgres/Express app and excluded from compilation.
+  "exclude": [
+    "src/server.ts",
+    "src/models/OfflineSync.ts",
+    "src/models/FlaggedItem.ts",
+    "src/services/OfflineSyncService.ts",
+    "src/services/moderationService.ts",
+    "src/controllers/OfflineSyncController.ts",
+    "src/controllers/moderationController.ts",
+    "src/routes/offlineSyncRoutes.ts",
+    "src/routes/moderationRoutes.ts"
+  ]
 }

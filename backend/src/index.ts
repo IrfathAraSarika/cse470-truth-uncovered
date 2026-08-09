@@ -11,6 +11,8 @@ import caseRoutes from './routes/caseRoutes.js';
 import verificationRoutes from './routes/verificationRoutes.js';
 import duplicateDetectionRoutes from './routes/duplicateDetectionRoutes.js';
 import fraudSpamModerationRoutes from './routes/fraudSpamModerationRoutes.js';
+import flaggedItemRoutes from './routes/flaggedItemRoutes.js';
+import { anonymousReportRoutes } from './routes/anonymousReportRoutes.js';
 
 const app = express();
 app.use(cors({ origin: config.frontendOrigin, credentials: true }));
@@ -25,6 +27,8 @@ app.use('/api/cases', caseRoutes);
 app.use('/api/verification', verificationRoutes);
 app.use('/api/duplicate-detection', duplicateDetectionRoutes);
 app.use('/api/moderation', fraudSpamModerationRoutes);
+app.use('/api/flagged-items', flaggedItemRoutes);
+app.use('/api/anonymous-reports', anonymousReportRoutes);
 
 
 app.get('/api/health', async (_request, response, next) => {
@@ -39,4 +43,10 @@ app.use((error: unknown, _request: express.Request, response: express.Response, 
   response.status(500).json({ error: 'Internal server error.' });
 });
 
-app.listen(config.port, () => console.log(`Backend running on http://localhost:${config.port}`));
+app.listen(config.port, () => {
+  console.log(`Backend running on http://localhost:${config.port}`);
+  // Warm up the connection pool at startup so the first API calls are fast.
+  pool.query('select 1')
+    .then(() => console.log('Database pool ready'))
+    .catch((error) => console.warn('Database not reachable yet:', error instanceof Error ? error.message : error));
+});

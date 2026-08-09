@@ -1,4 +1,4 @@
-const CACHE_NAME = 'truth-uncovered-pwa-v2';
+const CACHE_NAME = 'truth-uncovered-pwa-v3';
 const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/icons.svg'];
 
 self.addEventListener('install', (event) => {

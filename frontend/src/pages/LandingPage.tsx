@@ -129,6 +129,7 @@ export default function LandingPage() {
           <nav className="hidden md:flex items-center gap-10 text-base font-semibold text-gray-400">
             <a href="#platform" className="hover:text-white transition-colors duration-200">Platform</a>
             <a href="#smart-features" className="hover:text-white transition-colors duration-200">Smart Features</a>
+            <Link to="/flagged-items" className="hover:text-white transition-colors duration-200">Flag Watch</Link>
             <a href="#data-map" className="hover:text-white transition-colors duration-200">Data Map</a>
             <a href="#impact" className="hover:text-white transition-colors duration-200">Impact</a>
           </nav>
@@ -356,11 +357,11 @@ export default function LandingPage() {
           <div className="text-center max-w-2xl mx-auto mb-10">
             <h2 className="font-['Sora'] text-4xl font-bold text-white mb-4 tracking-tight">Smart Reporting &amp; Moderation</h2>
             <p className="text-base text-gray-400 leading-relaxed font-['Inter']">
-              Three intelligent modules for offline resilience, duplicate prevention, and automated fraud protection.
+              Four intelligent modules for offline resilience, duplicate prevention, automated fraud protection, and community flagging.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Offline PWA Reporting */}
             <div className="rounded-xl p-[1px] bg-gradient-to-b from-white/10 to-transparent">
               <div className="h-full rounded-xl bg-[#131313]/25 border border-white/[0.03] p-6 hover:border-[#ff5634]/30 hover:bg-[#131313]/40 transition-all duration-300 flex flex-col justify-between min-h-[260px] group">
@@ -441,6 +442,34 @@ export default function LandingPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
+              </div>
+            </div>
+
+            {/* FlaggedItem Community Flag Watch */}
+            <div className="rounded-xl p-[1px] bg-gradient-to-b from-white/10 to-transparent">
+              <div className="h-full rounded-xl bg-[#131313]/25 border border-white/[0.03] p-6 hover:border-[#00ADB5]/30 hover:bg-[#131313]/40 transition-all duration-300 flex flex-col justify-between min-h-[260px] group">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-8 h-8 rounded-[6px] bg-[#00ADB5]/10 border border-[#00ADB5]/20 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-[#00ADB5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2z" />
+                      </svg>
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#00ADB5] bg-[#00ADB5]/10 border border-[#00ADB5]/20 px-2 py-0.5 rounded">Citizen</span>
+                  </div>
+                  <h3 className="font-['Sora'] text-base font-semibold text-white mb-2">FlaggedItem Community Flag Watch</h3>
+                  <p className="text-[13px] text-gray-400 leading-relaxed">
+                    Flag suspicious reports as fraud, spam, or fake. Every flag is severity-scored and routed to admin verification.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 mt-4">
+                  <Link to="/flagged-items" className="text-xs font-bold text-[#00ADB5] uppercase flex items-center gap-1 hover:text-white transition-colors duration-200">
+                    View Flagged Reports
+                    <svg className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
