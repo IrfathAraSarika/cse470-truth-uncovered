@@ -1,4 +1,4 @@
-import { FlaggedItem, IFlaggedItem } from '../models/FlaggedItem';
+import { FlaggedItemStore, type DuplicateMatch, type IFlaggedItem } from '../models/FlaggedItem.js';
 
 // Simple text normalization and k-shingle Jaccard similarity
 function normalizeText(s: string) {
@@ -28,20 +28,16 @@ function jaccard(a: Set<string>, b: Set<string>) {
 
 export async function detectDuplicates(text: string, threshold = 0.75) {
   const subjectShingles = getShingles(text);
-  // naive: compare against FlaggedItem texts (recent) - adapt to include your primary content collection if you have one
-  const candidates = await FlaggedItem.find()
-    .sort({ createdAt: -1 })
-    .limit(200)
-    .lean()
-    .exec();
+  // naive: compare against recent flagged items - adapt to include your primary content collection if you have one
+  const candidates = FlaggedItemStore.recent(200);
 
-  const matches: { id: string; score: number; excerpt?: string }[] = [];
+  const matches: DuplicateMatch[] = [];
   for (const c of candidates) {
     const s = getShingles(c.text || '');
     const score = jaccard(subjectShingles, s);
     if (score >= threshold) {
       matches.push({
-        id: c._id.toString(),
+        id: c.id,
         score,
         excerpt: (c.text || '').slice(0, 200),
       });
@@ -50,9 +46,9 @@ export async function detectDuplicates(text: string, threshold = 0.75) {
   return matches;
 }
 
-export function simpleFraudSignals(text: string, metadata: any = {}, ip?: string) {
+export function simpleFraudSignals(text: string, metadata: any = {}, ip?: string | undefined) {
   const signals: string[] = [];
-  if ((text.match(/https?:\/\/g) || []).length > 3) signals.push('many_links');
+  if ((text.match(/https?:\/\//g) || []).length > 3) signals.push('many_links');
   if (text.length < 20) signals.push('very_short_text');
   if (ip && (ip.startsWith('10.') || ip.startsWith('192.168.'))) signals.push('private_ip');
   if (/(free|earn|credit|loan)/i.test(text)) signals.push('spammy_keywords');
@@ -66,7 +62,7 @@ export async function analyzeAndFlag(params: {
   text: string;
   reason?: string;
   metadata?: any;
-  reporterIp?: string;
+  reporterIp?: string | undefined;
 }) {
   const { text, reason, contentId, authorId, metadata, reporterIp } = params;
   const duplicateMatches = await detectDuplicates(text, 0.75);
@@ -75,7 +71,7 @@ export async function analyzeAndFlag(params: {
 
   let flagged: IFlaggedItem | null = null;
   if (shouldFlag) {
-    flagged = new FlaggedItem({
+    flagged = FlaggedItemStore.insert({
       contentId,
       authorId,
       text,
@@ -84,12 +80,11 @@ export async function analyzeAndFlag(params: {
       fraudSignals,
       reporterIp,
     });
-    await flagged.save();
   }
 
   return {
     flagged: Boolean(flagged),
-    flagId: flagged?._id,
+    flagId: flagged?.id,
     duplicateMatches,
     fraudSignals,
   };
@@ -97,10 +92,5 @@ export async function analyzeAndFlag(params: {
 
 export async function adminVerify(flagId: string, verified: boolean, adminNote?: string) {
   const status = verified ? 'verified' : 'rejected';
-  const updated = await FlaggedItem.findByIdAndUpdate(
-    flagId,
-    { status, adminNote },
-    { new: true }
-  ).exec();
-  return updated;
+  return FlaggedItemStore.updateStatus(flagId, status, adminNote);
 }

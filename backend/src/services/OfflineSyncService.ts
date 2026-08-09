@@ -1,8 +1,8 @@
-import { OfflineSync } from '../models/OfflineSync';
+import { OfflineSyncStore } from '../models/OfflineSync.js';
 
 export async function startSync(sourceId: string) {
   // create record
-  const record = await OfflineSync.create({ sourceId, status: 'running', startedAt: new Date() });
+  const record = OfflineSyncStore.create({ sourceId, status: 'running', startedAt: new Date() });
 
   try {
     // TODO: replace this placeholder with actual sync logic
@@ -12,21 +12,19 @@ export async function startSync(sourceId: string) {
     // mark success
     record.status = 'done';
     record.finishedAt = new Date();
-    await record.save();
     return record;
   } catch (err: any) {
     record.status = 'failed';
     record.error = err?.message ?? String(err);
     record.finishedAt = new Date();
-    await record.save();
     throw err;
   }
 }
 
 export async function getSyncStatus(id: string) {
-  return OfflineSync.findById(id).lean().exec();
+  return OfflineSyncStore.findById(id);
 }
 
 export async function listRecentSyncs(limit = 50) {
-  return OfflineSync.find().sort({ createdAt: -1 }).limit(limit).lean().exec();
+  return OfflineSyncStore.recent(limit);
 }
