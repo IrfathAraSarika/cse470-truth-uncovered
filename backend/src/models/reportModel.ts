@@ -31,6 +31,23 @@ export async function findDuplicateCandidates(category: string, district: string
   }));
 }
 
+export async function findExistingRecentReport(userId: string, title: string, description: string) {
+  const result = await pool.query(
+    `select r.report_id, r.title, r.category, r.status, r.is_anonymous, r.submission_date
+     from reports r
+     join citizens c on c.citizen_id = r.citizen_id
+     where c.user_id = $1
+       and r.title = $2
+       and r.description = $3
+       and r.submission_date > now() - interval '10 minutes'
+     order by r.submission_date desc
+     limit 1`,
+    [userId, title, description],
+  );
+  return result.rows[0] || null;
+}
+
+
 export async function createReport(userId: string, report: NewReport, screening: ReportScreeningResult) {
   const client = await pool.connect();
   try {

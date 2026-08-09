@@ -11,6 +11,8 @@ import CaseTrackerPage from './pages/CaseTrackerPage';
 import MyReportsPage from './pages/MyReportsPage';
 import OfflineDraftsPage from './pages/OfflineDraftsPage';
 import VerificationPage from './pages/VerificationPage';
+import DuplicateDetectionPage from './pages/DuplicateDetectionPage';
+import FraudModerationPage from './pages/FraudModerationPage';
 
 // Dummy page components just for the template
 const Chat = () => (
@@ -34,6 +36,8 @@ function App() {
         <Route path="/evidence-vault" element={<EvidenceVaultPage />} />
         <Route path="/case-tracker" element={<CaseTrackerPage />} />
         <Route path="/admin/verification" element={<AdminVerificationPage />} />
+        <Route path="/admin/duplicate-detection" element={<DuplicateDetectionPage />} />
+        <Route path="/admin/fraud-moderation" element={<FraudModerationPage />} />
         <Route path="/dashboard" element={<UserDashboardPage />} />
         <Route path="/my-reports" element={<MyReportsPage />} />
         <Route path="/offline-drafts" element={<OfflineDraftsPage />} />
@@ -42,5 +46,6 @@ function App() {
     </BrowserRouter>
   );
 }
+
 
 export default App;

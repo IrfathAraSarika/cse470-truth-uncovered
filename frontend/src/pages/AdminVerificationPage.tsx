@@ -252,9 +252,19 @@ export default function AdminVerificationPage() {
         </div>
       </header>
       <main className="max-w-[1400px] mx-auto px-4 md:px-6 py-8">
-        <div className="flex items-center gap-3 mb-6">
-          <ShieldIcon className="w-6 h-6 text-brand-teal" />
-          <h1 className="font-sora text-3xl font-bold text-white">Admin Verification</h1>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <ShieldIcon className="w-6 h-6 text-brand-teal" />
+            <h1 className="font-sora text-3xl font-bold text-white">Admin Verification</h1>
+          </div>
+          <div className="flex flex-wrap gap-4">
+            <Link to="/admin/duplicate-detection" className="text-xs font-bold text-brand-teal hover:underline">
+              Duplicate Detector
+            </Link>
+            <Link to="/admin/fraud-moderation" className="text-xs font-bold text-brand-red hover:underline">
+              Fraud Moderation
+            </Link>
+          </div>
         </div>
         <div className="flex gap-2 mb-6 border-b border-white/10">
           <button

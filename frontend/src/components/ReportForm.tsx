@@ -29,6 +29,7 @@ export default function ReportForm() {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [reportId, setReportId] = useState('');
   const [screening, setScreening] = useState<ReportScreening | null>(null);
   const [online, setOnline] = useState(navigator.onLine);
@@ -70,25 +71,39 @@ export default function ReportForm() {
     }
     queueReport(buildPayload());
     setError('');
+    setReportId('');
+    setScreening(null);
+    setTitle('');
+    setDescription('');
+    setMessage('Report draft saved safely on this device.');
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
     setError('');
+    setMessage('');
     setReportId('');
 
     try {
       if (!navigator.onLine) {
         queueReport(buildPayload());
+        setTitle('');
+        setDescription('');
+        setMessage('Report queued locally on device. Will auto-sync when connection is restored.');
         return;
       }
       const result = await submitReport(buildPayload());
       setReportId(result.report.report_id);
       setScreening(result.screening);
+      setTitle('');
+      setDescription('');
     } catch (requestError) {
       if (!navigator.onLine || requestError instanceof TypeError) {
         queueReport(buildPayload());
+        setTitle('');
+        setDescription('');
+        setMessage('Network error encountered. Report saved safely in offline queue.');
       } else {
         setError(requestError instanceof Error ? requestError.message : 'Report submission failed.');
       }
@@ -96,6 +111,7 @@ export default function ReportForm() {
       setLoading(false);
     }
   };
+
 
   const fieldClass = 'mt-2 w-full px-4 py-3 bg-black/40 border border-white/10 rounded-lg text-sm normal-case font-normal text-on-surface focus:outline-none focus:border-brand-teal/50';
 
@@ -163,6 +179,12 @@ export default function ReportForm() {
         </label>
 
         {error && <p className="mt-4 text-sm text-brand-red">{error}</p>}
+        {message && (
+          <div className="mt-4 p-4 border border-brand-teal/30 bg-brand-teal/5 rounded-lg flex justify-between items-center text-sm text-brand-teal">
+            <span>{message}</span>
+            <Link to="/offline-drafts" className="font-bold underline text-xs">View Offline Queue</Link>
+          </div>
+        )}
         {reportId && (
           <div className="mt-5 p-4 border border-brand-teal/30 bg-brand-teal/5 rounded-lg">
             <p className="text-sm font-bold text-brand-teal">Report submitted successfully.</p>

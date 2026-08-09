@@ -9,6 +9,8 @@ import signupRoutes from './routes/signupRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import caseRoutes from './routes/caseRoutes.js';
 import verificationRoutes from './routes/verificationRoutes.js';
+import duplicateDetectionRoutes from './routes/duplicateDetectionRoutes.js';
+import fraudSpamModerationRoutes from './routes/fraudSpamModerationRoutes.js';
 
 const app = express();
 app.use(cors({ origin: config.frontendOrigin, credentials: true }));
@@ -21,6 +23,9 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/cases', caseRoutes);
 app.use('/api/verification', verificationRoutes);
+app.use('/api/duplicate-detection', duplicateDetectionRoutes);
+app.use('/api/moderation', fraudSpamModerationRoutes);
+
 
 app.get('/api/health', async (_request, response, next) => {
   try {
