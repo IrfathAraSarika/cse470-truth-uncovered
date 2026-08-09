@@ -2,14 +2,14 @@
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout
-    // "rootDir": "./src",
-    // "outDir": "./dist",
+    "rootDir": "./src",
+    "outDir": "./dist",
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "nodenext",
     "target": "esnext",
-    "types": [],
+    "types": ["node"],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -40,5 +40,19 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-  }
+  },
+  "include": ["src/**/*.ts"],
+  // Legacy Mongoose-based prototypes kept for reference; not part of the
+  // Postgres/Express app and excluded from compilation.
+  "exclude": [
+    "src/server.ts",
+    "src/models/OfflineSync.ts",
+    "src/models/FlaggedItem.ts",
+    "src/services/OfflineSyncService.ts",
+    "src/services/moderationService.ts",
+    "src/controllers/OfflineSyncController.ts",
+    "src/controllers/moderationController.ts",
+    "src/routes/offlineSyncRoutes.ts",
+    "src/routes/moderationRoutes.ts"
+  ]
 }

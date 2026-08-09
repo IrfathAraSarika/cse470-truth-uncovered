@@ -1,8 +1,12 @@
-import express from 'express';
-import { submitReportController } from '../controller/reportController.js';
+import { Router } from 'express';
+import { batchSyncReports, getMyReports, getReports, submitReport } from '../controllers/reportController.js';
+import { requireAdmin, requireAuth } from '../middlewares/authMiddleware.js';
 
-const router = express.Router();
+const reportRoutes = Router();
+reportRoutes.post('/', requireAuth, submitReport);
+reportRoutes.post('/batch-sync', requireAuth, batchSyncReports);
+reportRoutes.get('/my', requireAuth, getMyReports);
+reportRoutes.get('/', requireAdmin, getReports);
 
-router.post('/submit', submitReportController);
+export default reportRoutes;
 
-export default router;

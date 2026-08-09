@@ -1,16 +1,21 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import Login from './pages/login.tsx';
-import Signup from './pages/signup.tsx';
-import AnonymousSubmissionPage from './pages/annynomous.tsx';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import AnonymousSubmissionPage from './pages/AnonymousSubmissionPage';
+import LandingPage from './pages/LandingPage';
+import AdminVerificationPage from './pages/AdminVerificationPage';
+import UserDashboardPage from './pages/UserDashboardPage';
+import ReportSubmissionPage from './pages/ReportSubmissionPage';
+import EvidenceVaultPage from './pages/EvidenceVaultPage';
+import CaseTrackerPage from './pages/CaseTrackerPage';
+import MyReportsPage from './pages/MyReportsPage';
+import OfflineDraftsPage from './pages/OfflineDraftsPage';
+import VerificationPage from './pages/VerificationPage';
+import DuplicateDetectionPage from './pages/DuplicateDetectionPage';
+import FraudModerationPage from './pages/FraudModerationPage';
+import FlaggedItemsPage from './pages/FlaggedItemsPage';
 
 // Dummy page components just for the template
-const Home = () => (
-  <div className="p-8">
-    <h1 className="text-2xl font-bold">Home Page</h1>
-    <p>Welcome to the app!</p>
-  </div>
-);
-
 const Chat = () => (
   <div className="p-8">
     <h1 className="text-2xl font-bold">Chat Page</h1>
@@ -21,22 +26,28 @@ const Chat = () => (
 function App() {
   return (
     <BrowserRouter>
-      {/* A simple navigation bar for your team to see routing in action */}
-      <nav className="p-4 bg-gray-200 flex gap-4">
-        <Link to="/" className="text-blue-600 hover:underline">Home</Link>
-        <Link to="/chat" className="text-blue-600 hover:underline">Chat</Link>
-      </nav>
-
       {/* The actual pages */}
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/chat" element={<Chat />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
         <Route path="/submit-anonymous" element={<AnonymousSubmissionPage />} />
+        <Route path="/submit-report" element={<ReportSubmissionPage />} />
+        <Route path="/evidence-vault" element={<EvidenceVaultPage />} />
+        <Route path="/case-tracker" element={<CaseTrackerPage />} />
+        <Route path="/admin/verification" element={<AdminVerificationPage />} />
+        <Route path="/admin/duplicate-detection" element={<DuplicateDetectionPage />} />
+        <Route path="/admin/fraud-moderation" element={<FraudModerationPage />} />
+        <Route path="/flagged-items" element={<FlaggedItemsPage />} />
+        <Route path="/dashboard" element={<UserDashboardPage />} />
+        <Route path="/my-reports" element={<MyReportsPage />} />
+        <Route path="/offline-drafts" element={<OfflineDraftsPage />} />
+        <Route path="/verification" element={<VerificationPage />} />
       </Routes>
     </BrowserRouter>
   );
 }
+
 
 export default App;

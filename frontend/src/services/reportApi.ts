@@ -1,14 +1,58 @@
-export const submitReportData = async (reportData: any) => {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reports/submit`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(reportData)
-  });
+import { apiRequest } from './apiClient';
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Failed to submit report');
-  }
+export interface ReportSubmission {
+  citizenId?: string;
+  title: string;
+  description: string;
+  category: string;
+  incidentDateTime: string | null;
+  isAnonymous: boolean;
+  district?: string;
+  address?: string;
+}
 
-  return await response.json();
-};
+export interface Report {
+  report_id: string;
+  title: string;
+  description: string;
+  category: string;
+  status: string;
+  is_anonymous: boolean;
+  incident_datetime: string | null;
+  submission_date: string;
+  updated_at: string | null;
+}
+
+export interface ReportScreening {
+  duplicateScore: number;
+  moderationScore: number;
+  reasons: string[];
+  possibleDuplicates: Array<{ reportId: string; title: string; score: number }>;
+}
+
+export interface ReportSubmissionResult {
+  report: { report_id: string; status: string };
+  screening: ReportScreening;
+}
+
+export interface BatchSyncResultItem {
+  clientDraftId: string;
+  status: 'synced' | 'duplicate_prevented' | 'failed';
+  report?: { report_id: string; status: string };
+  screening?: ReportScreening | null;
+  error?: string;
+}
+
+export interface BatchSyncResponse {
+  results: BatchSyncResultItem[];
+}
+
+export const submitReport = (report: ReportSubmission) =>
+  apiRequest<ReportSubmissionResult>('/reports', { method: 'POST', body: JSON.stringify(report) });
+
+export const batchSubmitReports = (reports: Array<ReportSubmission & { clientDraftId?: string }>) =>
+  apiRequest<BatchSyncResponse>('/reports/batch-sync', { method: 'POST', body: JSON.stringify({ reports }) });
+
+export const getMyReports = () =>
+  apiRequest<{ reports: Report[] }>('/reports/my');
+

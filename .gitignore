@@ -7,7 +7,5 @@ build/
 # Ignore actual environment files (for Production)
 .env
 .env.production
+.env.development
 .env.local
-
-# DO NOT ignore .env.development because we want the team to share the dev DB connection!
-!.env.development
