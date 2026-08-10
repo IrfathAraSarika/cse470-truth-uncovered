@@ -14,6 +14,7 @@ import VerificationPage from './pages/VerificationPage';
 import DuplicateDetectionPage from './pages/DuplicateDetectionPage';
 import FraudModerationPage from './pages/FraudModerationPage';
 import FlaggedItemsPage from './pages/FlaggedItemsPage';
+import HeatMapPage from './pages/HeatMapPage';
 
 // Dummy page components just for the template
 const Chat = () => (
@@ -29,6 +30,7 @@ function App() {
       {/* The actual pages */}
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/heatmap" element={<HeatMapPage />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />

@@ -30,8 +30,9 @@ export default function FraudModerationPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (user?.role === 'admin') loadQueue();
-  }, [user]);
+  }, [user?.role]);
 
   if (!user || user.role !== 'admin') return <Navigate to="/login" replace />;
 

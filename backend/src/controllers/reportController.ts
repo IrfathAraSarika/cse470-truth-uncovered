@@ -9,7 +9,7 @@ const allowedCategories = new Set([
 ]);
 
 export async function submitReport(request: AuthenticatedRequest, response: Response, next: NextFunction) {
-  const { title, description, category, incidentDateTime, isAnonymous, district, address } = request.body;
+  const { title, description, category, incidentDateTime, isAnonymous, district, address, locationData } = request.body;
   if (!request.auth) {
     response.status(401).json({ error: 'Authentication required.' });
     return;
@@ -34,14 +34,23 @@ export async function submitReport(request: AuthenticatedRequest, response: Resp
       return;
     }
 
+    const parsedLocationData = locationData && typeof locationData === 'object' ? {
+      address: typeof locationData.address === 'string' && locationData.address.trim() ? locationData.address.trim() : (typeof address === 'string' ? address.trim() : null),
+      latitude: typeof locationData.latitude === 'number' && !isNaN(locationData.latitude) ? locationData.latitude : null,
+      longitude: typeof locationData.longitude === 'number' && !isNaN(locationData.longitude) ? locationData.longitude : null,
+      district: typeof locationData.district === 'string' && locationData.district.trim() ? locationData.district.trim() : (typeof district === 'string' ? district.trim() : null),
+      division: typeof locationData.division === 'string' && locationData.division.trim() ? locationData.division.trim() : null,
+    } : null;
+
     const normalizedReport = {
       title: normalizedTitle,
       description: normalizedDescription,
       category,
       incidentDateTime: typeof incidentDateTime === 'string' ? incidentDateTime : null,
       isAnonymous: Boolean(isAnonymous),
-      district: typeof district === 'string' && district.trim() ? district.trim() : null,
-      address: typeof address === 'string' && address.trim() ? address.trim() : null,
+      district: parsedLocationData?.district ?? (typeof district === 'string' && district.trim() ? district.trim() : null),
+      address: parsedLocationData?.address ?? (typeof address === 'string' && address.trim() ? address.trim() : null),
+      locationData: parsedLocationData,
     };
     const candidates = await findDuplicateCandidates(normalizedReport.category, normalizedReport.district);
     const screening = screenReport(normalizedReport, candidates);
@@ -68,7 +77,7 @@ export async function batchSyncReports(request: AuthenticatedRequest, response: 
   for (const item of reports) {
     const clientDraftId = typeof item.clientDraftId === 'string' ? item.clientDraftId : item.queueId;
     try {
-      const { title, description, category, incidentDateTime, isAnonymous, district, address } = item;
+      const { title, description, category, incidentDateTime, isAnonymous, district, address, locationData } = item;
       if (typeof title !== 'string' || !title.trim() || typeof description !== 'string' || !description.trim() || typeof category !== 'string' || !allowedCategories.has(category)) {
         results.push({ clientDraftId, status: 'failed', error: 'Invalid report data payload.' });
         continue;
@@ -83,14 +92,23 @@ export async function batchSyncReports(request: AuthenticatedRequest, response: 
         continue;
       }
 
+      const parsedLocationData = locationData && typeof locationData === 'object' ? {
+        address: typeof locationData.address === 'string' && locationData.address.trim() ? locationData.address.trim() : (typeof address === 'string' ? address.trim() : null),
+        latitude: typeof locationData.latitude === 'number' && !isNaN(locationData.latitude) ? locationData.latitude : null,
+        longitude: typeof locationData.longitude === 'number' && !isNaN(locationData.longitude) ? locationData.longitude : null,
+        district: typeof locationData.district === 'string' && locationData.district.trim() ? locationData.district.trim() : (typeof district === 'string' ? district.trim() : null),
+        division: typeof locationData.division === 'string' && locationData.division.trim() ? locationData.division.trim() : null,
+      } : null;
+
       const normalizedReport = {
         title: normalizedTitle,
         description: normalizedDescription,
         category,
         incidentDateTime: typeof incidentDateTime === 'string' ? incidentDateTime : null,
         isAnonymous: Boolean(isAnonymous),
-        district: typeof district === 'string' && district.trim() ? district.trim() : null,
-        address: typeof address === 'string' && address.trim() ? address.trim() : null,
+        district: parsedLocationData?.district ?? (typeof district === 'string' && district.trim() ? district.trim() : null),
+        address: parsedLocationData?.address ?? (typeof address === 'string' && address.trim() ? address.trim() : null),
+        locationData: parsedLocationData,
       };
 
       const candidates = await findDuplicateCandidates(normalizedReport.category, normalizedReport.district);

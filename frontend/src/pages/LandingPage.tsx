@@ -130,7 +130,7 @@ export default function LandingPage() {
             <a href="#platform" className="hover:text-white transition-colors duration-200">Platform</a>
             <a href="#smart-features" className="hover:text-white transition-colors duration-200">Smart Features</a>
             <Link to="/flagged-items" className="hover:text-white transition-colors duration-200">Flag Watch</Link>
-            <a href="#data-map" className="hover:text-white transition-colors duration-200">Data Map</a>
+            <Link to="/heatmap" className="hover:text-white transition-colors duration-200">Heat Map</Link>
             <a href="#impact" className="hover:text-white transition-colors duration-200">Impact</a>
           </nav>
 

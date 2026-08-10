@@ -34,3 +34,9 @@ body {
 .interactive-hover:hover {
   border-color: rgba(0, 173, 181, 0.4);
 }
+
+/* High-contrast Dark Mode Leaflet Filter */
+.leaflet-tile-pane {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(120%);
+}
+

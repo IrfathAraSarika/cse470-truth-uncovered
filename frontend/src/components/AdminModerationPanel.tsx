@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 type Flag = {
   _id: string;
@@ -12,12 +12,17 @@ type Flag = {
 
 export default function AdminModerationPanel() {
   const [flags, setFlags] = useState<Flag[]>([]);
-  useEffect(() => { load(); }, []);
-  async function load() {
+
+  const load = useCallback(async () => {
     const res = await fetch('/api/moderation/flags');
     const json = await res.json();
     setFlags(json);
-  }
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void load();
+  }, [load]);
 
   async function setStatus(id: string, verified: boolean) {
     await fetch(`/api/moderation/flags/${id}/verify`, {

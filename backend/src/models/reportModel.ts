@@ -9,6 +9,13 @@ export interface NewReport {
   isAnonymous: boolean;
   district: string | null;
   address: string | null;
+  locationData?: {
+    address?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+    district?: string | null;
+    division?: string | null;
+  } | null;
 }
 
 export async function findDuplicateCandidates(category: string, district: string | null): Promise<DuplicateCandidate[]> {
@@ -60,12 +67,18 @@ export async function createReport(userId: string, report: NewReport, screening:
     if (!citizenResult.rows[0]) throw new Error('A citizen profile is required to submit reports.');
 
     let locationId: string | null = null;
-    if (report.address || report.district) {
+    const locAddress = report.locationData?.address ?? report.address;
+    const locDistrict = report.locationData?.district ?? report.district;
+    const locDivision = report.locationData?.division ?? null;
+    const locLat = typeof report.locationData?.latitude === 'number' ? report.locationData.latitude : null;
+    const locLng = typeof report.locationData?.longitude === 'number' ? report.locationData.longitude : null;
+
+    if (locAddress || locDistrict || locDivision || locLat !== null || locLng !== null) {
       const locationResult = await client.query(
-        `insert into locations (address, district)
-         values ($1, $2)
+        `insert into locations (address, latitude, longitude, district, division)
+         values ($1, $2, $3, $4, $5)
          returning location_id`,
-        [report.address, report.district],
+        [locAddress, locLat, locLng, locDistrict, locDivision],
       );
       locationId = locationResult.rows[0].location_id as string;
     }

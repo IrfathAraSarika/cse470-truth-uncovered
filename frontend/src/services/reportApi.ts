@@ -9,6 +9,13 @@ export interface ReportSubmission {
   isAnonymous: boolean;
   district?: string;
   address?: string;
+  locationData?: {
+    address?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+    district?: string | null;
+    division?: string | null;
+  } | null;
 }
 
 export interface Report {
