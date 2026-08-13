@@ -15,6 +15,6 @@ mongoose.connect(MONGO).then(() => {
   console.log('mongo connected');
   const port = process.env.PORT || 4000;
   app.listen(port, () => console.log('listening on', port));
-}).catch(err => {
+}).catch((err: unknown) => {
   console.error('mongo connect error', err);
 });
