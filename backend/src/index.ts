@@ -13,6 +13,9 @@ import duplicateDetectionRoutes from './routes/duplicateDetectionRoutes.js';
 import fraudSpamModerationRoutes from './routes/fraudSpamModerationRoutes.js';
 import flaggedItemRoutes from './routes/flaggedItemRoutes.js';
 import { anonymousReportRoutes } from './routes/anonymousReportRoutes.js';
+import mapRoutes from './routes/mapRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
+import repositoryRoutes from './routes/repositoryRoutes.js';
 
 const app = express();
 app.use(cors({ origin: config.frontendOrigin, credentials: true }));
@@ -29,6 +32,9 @@ app.use('/api/duplicate-detection', duplicateDetectionRoutes);
 app.use('/api/moderation', fraudSpamModerationRoutes);
 app.use('/api/flagged-items', flaggedItemRoutes);
 app.use('/api/anonymous-reports', anonymousReportRoutes);
+app.use('/api/map', mapRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/repository', repositoryRoutes);
 
 
 app.get('/api/health', async (_request, response, next) => {

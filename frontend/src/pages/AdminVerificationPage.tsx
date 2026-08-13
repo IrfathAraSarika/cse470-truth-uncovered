@@ -145,10 +145,13 @@ function NidVerificationPanel() {
     }
   }, [filter, navigate]);
 
-  useEffect(() => { void loadRequests(); }, [loadRequests]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadRequests();
+  }, [loadRequests]);
 
   useEffect(() => {
-    if (!selectedId) { setDetail(null); return; }
+    if (!selectedId) { setDetail(null); return; } // eslint-disable-line react-hooks/set-state-in-effect
     setError('');
     void getVerificationRequestDetail(selectedId)
       .then(setDetail)
