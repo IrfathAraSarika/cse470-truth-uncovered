@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { startHandler, statusHandler, listHandler } from '../controllers/OfflineSyncController';
+import { startHandler, statusHandler, listHandler } from '../controllers/OfflineSyncController.js';
 
 // Placeholder auth - adapt to your app's auth middleware
 function requireAuth(req: any, res: any, next: any) {

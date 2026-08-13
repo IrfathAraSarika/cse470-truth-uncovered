@@ -18,8 +18,12 @@ export default function FraudModerationPage() {
   const [scanResult, setScanResult] = useState<ModerationRiskBreakdown | null>(null);
   const [scanning, setScanning] = useState(false);
 
-  const userRaw = localStorage.getItem('user');
-  const user = userRaw ? JSON.parse(userRaw) as { role: string } : null;
+  // Parse once so the effect below runs a single time (a fresh object every
+  // render would retrigger the queue fetch in an endless loop).
+  const [user] = useState<{ role: string } | null>(() => {
+    const raw = localStorage.getItem('user');
+    return raw ? (JSON.parse(raw) as { role: string }) : null;
+  });
 
   const loadQueue = () => {
     setLoading(true);

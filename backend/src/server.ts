@@ -1,6 +1,6 @@
 import express from 'express';
-import mongoose from 'mongoose';
-import moderationRoutes from './routes/moderationRoutes';
+import { pool } from './models/database.js';
+import moderationRoutes from './routes/moderationRoutes.js';
 
 const app = express();
 app.use(express.json());
@@ -10,11 +10,13 @@ app.use(express.json());
 
 app.use('/api/moderation', moderationRoutes);
 
-const MONGO = process.env.MONGO_URL || 'mongodb://localhost:27017/moderation';
-mongoose.connect(MONGO).then(() => {
-  console.log('mongo connected');
-  const port = process.env.PORT || 4000;
-  app.listen(port, () => console.log('listening on', port));
-}).catch((err: unknown) => {
-  console.error('mongo connect error', err);
-});
+const port = process.env.PORT || 4000;
+// Supabase/Postgres connection check before listening.
+pool.query('select 1')
+  .then(() => {
+    console.log('database connected');
+    app.listen(port, () => console.log('listening on', port));
+  })
+  .catch(err => {
+    console.error('database connect error', err);
+  });

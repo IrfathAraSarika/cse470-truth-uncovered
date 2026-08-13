@@ -4,7 +4,7 @@ import {
   reportHandler,
   listFlagsHandler,
   verifyFlagHandler,
-} from '../controllers/moderationController';
+} from '../controllers/moderationController.js';
 
 // Placeholder auth middlewares — replace with your actual implementations
 function requireAuth(req: any, res: any, next: any) {

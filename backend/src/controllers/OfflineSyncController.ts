@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import * as syncService from '../services/OfflineSyncService';
+import * as syncService from '../services/OfflineSyncService.js';
 
 export async function startHandler(req: Request, res: Response) {
   const { sourceId } = req.body;
@@ -15,7 +15,7 @@ export async function startHandler(req: Request, res: Response) {
 }
 
 export async function statusHandler(req: Request, res: Response) {
-  const { id } = req.params;
+  const id = String(req.params.id ?? '');
   if (!id) return res.status(400).json({ error: 'id required' });
 
   try {
