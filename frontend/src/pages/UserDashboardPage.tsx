@@ -257,6 +257,7 @@ export default function UserDashboardPage() {
           <p className="text-sm text-on-surface/60 mb-6">Access the tools available for your account.</p>
           {user.role === 'citizen' ? (
             <div className="flex flex-wrap gap-3">
+              <Link to="/articles" className="inline-block px-5 py-3 bg-brand-teal text-black rounded-lg text-sm font-bold">Knowledge Hub</Link>
               <Link to="/submit-report" className="inline-block px-5 py-3 bg-brand-red text-white rounded-lg text-sm font-bold">Submit a Report</Link>
               <Link to="/my-reports" className="inline-block px-5 py-3 border border-brand-teal/40 text-brand-teal rounded-lg text-sm font-bold">My Reports</Link>
               <Link to="/case-tracker" className="inline-block px-5 py-3 border border-white/15 text-white rounded-lg text-sm font-bold">Track a Case</Link>
