@@ -127,6 +127,7 @@ export default function LandingPage() {
 
           {/* Navigation Links */}
           <nav className="hidden md:flex items-center gap-10 text-base font-semibold text-gray-400">
+            <Link to="/articles" className="hover:text-white transition-colors duration-200">Knowledge Hub</Link>
             <a href="#platform" className="hover:text-white transition-colors duration-200">Platform</a>
             <a href="#data-map" className="hover:text-white transition-colors duration-200">Data Map</a>
             <a href="#impact" className="hover:text-white transition-colors duration-200">Impact</a>

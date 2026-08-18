@@ -11,6 +11,8 @@ import CaseTrackerPage from './pages/CaseTrackerPage';
 import MyReportsPage from './pages/MyReportsPage';
 import OfflineDraftsPage from './pages/OfflineDraftsPage';
 import VerificationPage from './pages/VerificationPage';
+import ArticlesDirectoryPage from './pages/ArticlesDirectoryPage';
+import ArticleDetailPage from './pages/ArticleDetailPage';
 
 // Dummy page components just for the template
 const Chat = () => (
@@ -38,6 +40,8 @@ function App() {
         <Route path="/my-reports" element={<MyReportsPage />} />
         <Route path="/offline-drafts" element={<OfflineDraftsPage />} />
         <Route path="/verification" element={<VerificationPage />} />
+        <Route path="/articles" element={<ArticlesDirectoryPage />} />
+        <Route path="/articles/:slug" element={<ArticleDetailPage />} />
       </Routes>
     </BrowserRouter>
   );
