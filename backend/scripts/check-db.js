@@ -29,7 +29,10 @@ const requiredTables = [
   "heatmap_data",
   "blog_posts",
   "legal_resources",
-  "notifications"
+  "notifications",
+  "categories",
+  "articles",
+  "category_follows"
 ];
 
 if (!process.env.DATABASE_URL) {

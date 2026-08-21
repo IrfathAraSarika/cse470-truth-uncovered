@@ -11,6 +11,8 @@ import CaseTrackerPage from './pages/CaseTrackerPage';
 import MyReportsPage from './pages/MyReportsPage';
 import OfflineDraftsPage from './pages/OfflineDraftsPage';
 import VerificationPage from './pages/VerificationPage';
+import ArticlesDirectoryPage from './pages/ArticlesDirectoryPage';
+import ArticleDetailPage from './pages/ArticleDetailPage';
 import DuplicateDetectionPage from './pages/DuplicateDetectionPage';
 import FraudModerationPage from './pages/FraudModerationPage';
 import FlaggedItemsPage from './pages/FlaggedItemsPage';
@@ -50,6 +52,8 @@ function App() {
         <Route path="/my-reports" element={<MyReportsPage />} />
         <Route path="/offline-drafts" element={<OfflineDraftsPage />} />
         <Route path="/verification" element={<VerificationPage />} />
+        <Route path="/articles" element={<ArticlesDirectoryPage />} />
+        <Route path="/articles/:slug" element={<ArticleDetailPage />} />
       </Routes>
     </BrowserRouter>
   );

@@ -243,15 +243,17 @@ function NidVerificationPanel() {
   );
 }
 
+import { AdminArticlesPanel } from '../components/AdminArticlesPanel';
+
 export default function AdminVerificationPage() {
-  const [tab, setTab] = useState<'reports' | 'nid'>('reports');
+  const [tab, setTab] = useState<'reports' | 'nid' | 'articles'>('reports');
 
   return (
     <div className="min-h-screen bg-bg-dark text-on-surface font-inter">
       <header className="border-b border-white/10 bg-bg-dark/95">
         <div className="max-w-[1400px] mx-auto h-16 px-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3"><LogoIcon /><span className="font-sora font-bold">Truth Uncovered</span></Link>
-          <span className="text-xs font-bold uppercase text-brand-teal">Admin Verification</span>
+          <span className="text-xs font-bold uppercase text-brand-teal">Admin Verification & Management</span>
         </div>
       </header>
       <main className="max-w-[1400px] mx-auto px-4 md:px-6 py-8">
@@ -269,7 +271,7 @@ export default function AdminVerificationPage() {
             </Link>
           </div>
         </div>
-        <div className="flex gap-2 mb-6 border-b border-white/10">
+        <div className="flex gap-2 mb-6 border-b border-white/10 overflow-x-auto whitespace-nowrap">
           <button
             onClick={() => setTab('reports')}
             className={`px-4 py-3 text-sm font-bold border-b-2 -mb-px ${tab === 'reports' ? 'border-brand-teal text-brand-teal' : 'border-transparent text-on-surface/50 hover:text-on-surface/80'}`}
@@ -282,8 +284,16 @@ export default function AdminVerificationPage() {
           >
             User Verification (NID)
           </button>
+          <button
+            onClick={() => setTab('articles')}
+            className={`px-4 py-3 text-sm font-bold border-b-2 -mb-px ${tab === 'articles' ? 'border-brand-teal text-brand-teal' : 'border-transparent text-on-surface/50 hover:text-on-surface/80'}`}
+          >
+            Article Management
+          </button>
         </div>
-        {tab === 'reports' ? <ReportVerificationPanel /> : <NidVerificationPanel />}
+        {tab === 'reports' && <ReportVerificationPanel />}
+        {tab === 'nid' && <NidVerificationPanel />}
+        {tab === 'articles' && <AdminArticlesPanel />}
       </main>
     </div>
   );
