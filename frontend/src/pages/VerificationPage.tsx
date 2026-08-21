@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { LogoIcon, ShieldIcon } from '../components/AppIcons';
 import { getMyVerification, submitMyVerification, type VerificationStatus } from '../services/verificationApi';
@@ -52,7 +52,7 @@ export default function VerificationPage() {
   const [notice, setNotice] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true);
     getMyVerification()
       .then((data) => { setVerification(data); setError(''); })
@@ -61,11 +61,12 @@ export default function VerificationPage() {
         else setError(requestError instanceof Error ? requestError.message : 'Could not load your verification status.');
       })
       .finally(() => setLoading(false));
-  };
+  }, [navigate]);
 
   useEffect(() => {
     if (!user) return;
-    load();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

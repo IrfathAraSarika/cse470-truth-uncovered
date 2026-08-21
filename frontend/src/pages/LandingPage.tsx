@@ -129,7 +129,11 @@ export default function LandingPage() {
           <nav className="hidden md:flex items-center gap-10 text-base font-semibold text-gray-400">
             <Link to="/articles" className="hover:text-white transition-colors duration-200">Knowledge Hub</Link>
             <a href="#platform" className="hover:text-white transition-colors duration-200">Platform</a>
-            <a href="#data-map" className="hover:text-white transition-colors duration-200">Data Map</a>
+            <a href="#smart-features" className="hover:text-white transition-colors duration-200">Smart Features</a>
+            <Link to="/flagged-items" className="hover:text-white transition-colors duration-200">Flag Watch</Link>
+            <Link to="/repository" className="hover:text-white transition-colors duration-200">Repository</Link>
+            <Link to="/heatmap" className="hover:text-white transition-colors duration-200">Heat Map</Link>
+            <Link to="/analytics" className="hover:text-white transition-colors duration-200">Analytics</Link>
             <a href="#impact" className="hover:text-white transition-colors duration-200">Impact</a>
           </nav>
 
@@ -364,6 +368,129 @@ export default function LandingPage() {
                   </p>
                 </div>
                 <Link to="/articles" className="text-xs font-bold text-[#ff5634] uppercase mt-4">Visit Knowledge Hub</Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SMART REPORTING & MODERATION FEATURES */}
+        <section id="smart-features" className="mb-16">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <h2 className="font-['Sora'] text-4xl font-bold text-white mb-4 tracking-tight">Smart Reporting &amp; Moderation</h2>
+            <p className="text-base text-gray-400 leading-relaxed font-['Inter']">
+              Four intelligent modules for offline resilience, duplicate prevention, automated fraud protection, and community flagging.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Offline PWA Reporting */}
+            <div className="rounded-xl p-[1px] bg-gradient-to-b from-white/10 to-transparent">
+              <div className="h-full rounded-xl bg-[#131313]/25 border border-white/[0.03] p-6 hover:border-[#ff5634]/30 hover:bg-[#131313]/40 transition-all duration-300 flex flex-col justify-between min-h-[260px] group">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-8 h-8 rounded-[6px] bg-[#ff5634]/10 border border-[#ff5634]/20 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-[#ff5634]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414" />
+                      </svg>
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#ffb4a4] bg-[#ff5634]/10 border border-[#ff5634]/20 px-2 py-0.5 rounded">Citizen</span>
+                  </div>
+                  <h3 className="font-['Sora'] text-base font-semibold text-white mb-2">Offline Progressive Web App Reporting</h3>
+                  <p className="text-[13px] text-gray-400 leading-relaxed">
+                    Submit incident reports without internet. Drafts are saved locally and automatically synced when you reconnect.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 mt-4">
+                  <Link to="/submit-report" className="text-xs font-bold text-[#ffb4a4] uppercase flex items-center gap-1 hover:text-white transition-colors duration-200">
+                    Submit Report
+                    <svg className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                  <Link to="/offline-drafts" className="text-xs font-bold text-gray-500 uppercase hover:text-[#ffb4a4] transition-colors duration-200">
+                    Manage Offline Drafts
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Duplicate Detector */}
+            <div className="rounded-xl p-[1px] bg-gradient-to-b from-white/10 to-transparent">
+              <div className="h-full rounded-xl bg-[#131313]/25 border border-white/[0.03] p-6 hover:border-[#00ADB5]/30 hover:bg-[#131313]/40 transition-all duration-300 flex flex-col justify-between min-h-[260px] group">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-8 h-8 rounded-[6px] bg-[#00ADB5]/10 border border-[#00ADB5]/20 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-[#00ADB5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#00ADB5] bg-[#00ADB5]/10 border border-[#00ADB5]/20 px-2 py-0.5 rounded">Admin</span>
+                  </div>
+                  <h3 className="font-['Sora'] text-base font-semibold text-white mb-2">AI-Powered Duplicate Report Detector</h3>
+                  <p className="text-[13px] text-gray-400 leading-relaxed">
+                    Intelligent similarity scoring across text, location, and time to flag and merge duplicate incident reports.
+                  </p>
+                </div>
+                <Link to="/admin/duplicate-detection" className="text-xs font-bold text-[#00ADB5] uppercase flex items-center gap-1 hover:text-white transition-colors duration-200 mt-4">
+                  Open Duplicate Detector
+                  <svg className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+            </div>
+
+            {/* Fraud & Spam Moderation */}
+            <div className="rounded-xl p-[1px] bg-gradient-to-b from-white/10 to-transparent">
+              <div className="h-full rounded-xl bg-[#131313]/25 border border-white/[0.03] p-6 hover:border-[#ff5634]/30 hover:bg-[#131313]/40 transition-all duration-300 flex flex-col justify-between min-h-[260px] group">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-8 h-8 rounded-[6px] bg-[#ff5634]/10 border border-[#ff5634]/20 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-[#ff5634]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#ffb4a4] bg-[#ff5634]/10 border border-[#ff5634]/20 px-2 py-0.5 rounded">Admin</span>
+                  </div>
+                  <h3 className="font-['Sora'] text-base font-semibold text-white mb-2">Fraud and Spam Auto-Moderation System</h3>
+                  <p className="text-[13px] text-gray-400 leading-relaxed">
+                    Automatically detects spam, fraud keywords, and suspicious patterns — hiding bad reports before they reach the queue.
+                  </p>
+                </div>
+                <Link to="/admin/fraud-moderation" className="text-xs font-bold text-[#ffb4a4] uppercase flex items-center gap-1 hover:text-white transition-colors duration-200 mt-4">
+                  Open Moderation Panel
+                  <svg className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+            </div>
+
+            {/* FlaggedItem Community Flag Watch */}
+            <div className="rounded-xl p-[1px] bg-gradient-to-b from-white/10 to-transparent">
+              <div className="h-full rounded-xl bg-[#131313]/25 border border-white/[0.03] p-6 hover:border-[#00ADB5]/30 hover:bg-[#131313]/40 transition-all duration-300 flex flex-col justify-between min-h-[260px] group">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-8 h-8 rounded-[6px] bg-[#00ADB5]/10 border border-[#00ADB5]/20 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-[#00ADB5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2z" />
+                      </svg>
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#00ADB5] bg-[#00ADB5]/10 border border-[#00ADB5]/20 px-2 py-0.5 rounded">Citizen</span>
+                  </div>
+                  <h3 className="font-['Sora'] text-base font-semibold text-white mb-2">FlaggedItem Community Flag Watch</h3>
+                  <p className="text-[13px] text-gray-400 leading-relaxed">
+                    Flag suspicious reports as fraud, spam, or fake. Every flag is severity-scored and routed to admin verification.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 mt-4">
+                  <Link to="/flagged-items" className="text-xs font-bold text-[#00ADB5] uppercase flex items-center gap-1 hover:text-white transition-colors duration-200">
+                    View Flagged Reports
+                    <svg className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

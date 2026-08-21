@@ -9,6 +9,13 @@ export interface ReportSubmission {
   isAnonymous: boolean;
   district?: string;
   address?: string;
+  locationData?: {
+    address?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+    district?: string | null;
+    division?: string | null;
+  } | null;
 }
 
 export interface Report {
@@ -35,8 +42,24 @@ export interface ReportSubmissionResult {
   screening: ReportScreening;
 }
 
+export interface BatchSyncResultItem {
+  clientDraftId: string;
+  status: 'synced' | 'duplicate_prevented' | 'failed';
+  report?: { report_id: string; status: string };
+  screening?: ReportScreening | null;
+  error?: string;
+}
+
+export interface BatchSyncResponse {
+  results: BatchSyncResultItem[];
+}
+
 export const submitReport = (report: ReportSubmission) =>
   apiRequest<ReportSubmissionResult>('/reports', { method: 'POST', body: JSON.stringify(report) });
 
+export const batchSubmitReports = (reports: Array<ReportSubmission & { clientDraftId?: string }>) =>
+  apiRequest<BatchSyncResponse>('/reports/batch-sync', { method: 'POST', body: JSON.stringify({ reports }) });
+
 export const getMyReports = () =>
   apiRequest<{ reports: Report[] }>('/reports/my');
+

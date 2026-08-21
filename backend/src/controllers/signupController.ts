@@ -4,7 +4,7 @@ import { createAccount } from '../models/signupModel.js';
 export async function signup(request: Request, response: Response, next: NextFunction) {
   const { name, email, password, role, affiliation } = request.body;
   const normalizedEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
-  const allowedRoles = new Set(['citizen', 'ngo_partner', 'government_officer']);
+  const allowedRoles = new Set(['citizen', 'ngo_partner', 'government_officer', 'admin']);
   const normalizedRole = typeof role === 'string' && allowedRoles.has(role) ? role : 'citizen';
   if (typeof name !== 'string' || name.trim().length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) { response.status(400).json({ error: 'Enter a valid name and email.' }); return; }
   if (typeof password !== 'string' || password.length < 8 || password.length > 72) { response.status(400).json({ error: 'Password must contain between 8 and 72 characters.' }); return; }

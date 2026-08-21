@@ -10,7 +10,18 @@ createRoot(document.getElementById('root')!).render(
 )
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    void navigator.serviceWorker.register('/sw.js');
-  });
+  if (import.meta.env.PROD) {
+    window.addEventListener('load', () => {
+      void navigator.serviceWorker.register('/sw.js');
+    });
+  } else {
+    // Dev mode: remove any previously registered service worker and its caches
+    // so Vite's modules are always fetched fresh — no hard refresh needed.
+    void navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const registration of registrations) void registration.unregister();
+    });
+    void caches.keys().then((keys) => {
+      for (const key of keys) void caches.delete(key);
+    });
+  }
 }

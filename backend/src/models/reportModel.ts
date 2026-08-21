@@ -9,6 +9,13 @@ export interface NewReport {
   isAnonymous: boolean;
   district: string | null;
   address: string | null;
+  locationData?: {
+    address?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+    district?: string | null;
+    division?: string | null;
+  } | null;
 }
 
 export async function findDuplicateCandidates(category: string, district: string | null): Promise<DuplicateCandidate[]> {
@@ -31,6 +38,23 @@ export async function findDuplicateCandidates(category: string, district: string
   }));
 }
 
+export async function findExistingRecentReport(userId: string, title: string, description: string) {
+  const result = await pool.query(
+    `select r.report_id, r.title, r.category, r.status, r.is_anonymous, r.submission_date
+     from reports r
+     join citizens c on c.citizen_id = r.citizen_id
+     where c.user_id = $1
+       and r.title = $2
+       and r.description = $3
+       and r.submission_date > now() - interval '10 minutes'
+     order by r.submission_date desc
+     limit 1`,
+    [userId, title, description],
+  );
+  return result.rows[0] || null;
+}
+
+
 export async function createReport(userId: string, report: NewReport, screening: ReportScreeningResult) {
   const client = await pool.connect();
   try {
@@ -43,12 +67,18 @@ export async function createReport(userId: string, report: NewReport, screening:
     if (!citizenResult.rows[0]) throw new Error('A citizen profile is required to submit reports.');
 
     let locationId: string | null = null;
-    if (report.address || report.district) {
+    const locAddress = report.locationData?.address ?? report.address;
+    const locDistrict = report.locationData?.district ?? report.district;
+    const locDivision = report.locationData?.division ?? null;
+    const locLat = typeof report.locationData?.latitude === 'number' ? report.locationData.latitude : null;
+    const locLng = typeof report.locationData?.longitude === 'number' ? report.locationData.longitude : null;
+
+    if (locAddress || locDistrict || locDivision || locLat !== null || locLng !== null) {
       const locationResult = await client.query(
-        `insert into locations (address, district)
-         values ($1, $2)
+        `insert into locations (address, latitude, longitude, district, division)
+         values ($1, $2, $3, $4, $5)
          returning location_id`,
-        [report.address, report.district],
+        [locAddress, locLat, locLng, locDistrict, locDivision],
       );
       locationId = locationResult.rows[0].location_id as string;
     }

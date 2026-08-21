@@ -10,6 +10,13 @@ import adminRoutes from './routes/adminRoutes.js';
 import caseRoutes from './routes/caseRoutes.js';
 import verificationRoutes from './routes/verificationRoutes.js';
 import articleRoutes from './routes/articleRoutes.js';
+import duplicateDetectionRoutes from './routes/duplicateDetectionRoutes.js';
+import fraudSpamModerationRoutes from './routes/fraudSpamModerationRoutes.js';
+import flaggedItemRoutes from './routes/flaggedItemRoutes.js';
+import { anonymousReportRoutes } from './routes/anonymousReportRoutes.js';
+import mapRoutes from './routes/mapRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
+import repositoryRoutes from './routes/repositoryRoutes.js';
 
 const app = express();
 app.use(cors({ origin: config.frontendOrigin, credentials: true }));
@@ -23,6 +30,14 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/cases', caseRoutes);
 app.use('/api/verification', verificationRoutes);
 app.use('/api/articles', articleRoutes);
+app.use('/api/duplicate-detection', duplicateDetectionRoutes);
+app.use('/api/moderation', fraudSpamModerationRoutes);
+app.use('/api/flagged-items', flaggedItemRoutes);
+app.use('/api/anonymous-reports', anonymousReportRoutes);
+app.use('/api/map', mapRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/repository', repositoryRoutes);
+
 
 app.get('/api/health', async (_request, response, next) => {
   try {
@@ -36,4 +51,10 @@ app.use((error: unknown, _request: express.Request, response: express.Response, 
   response.status(500).json({ error: 'Internal server error.' });
 });
 
-app.listen(config.port, () => console.log(`Backend running on http://localhost:${config.port}`));
+app.listen(config.port, () => {
+  console.log(`Backend running on http://localhost:${config.port}`);
+  // Warm up the connection pool at startup so the first API calls are fast.
+  pool.query('select 1')
+    .then(() => console.log('Database pool ready'))
+    .catch((error) => console.warn('Database not reachable yet:', error instanceof Error ? error.message : error));
+});

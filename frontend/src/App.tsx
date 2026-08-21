@@ -13,6 +13,12 @@ import OfflineDraftsPage from './pages/OfflineDraftsPage';
 import VerificationPage from './pages/VerificationPage';
 import ArticlesDirectoryPage from './pages/ArticlesDirectoryPage';
 import ArticleDetailPage from './pages/ArticleDetailPage';
+import DuplicateDetectionPage from './pages/DuplicateDetectionPage';
+import FraudModerationPage from './pages/FraudModerationPage';
+import FlaggedItemsPage from './pages/FlaggedItemsPage';
+import HeatMapPage from './pages/HeatMapPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import RepositoryPage from './pages/RepositoryPage';
 
 // Dummy page components just for the template
 const Chat = () => (
@@ -28,6 +34,9 @@ function App() {
       {/* The actual pages */}
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/repository" element={<RepositoryPage />} />
+        <Route path="/heatmap" element={<HeatMapPage />} />
+        <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
@@ -36,6 +45,9 @@ function App() {
         <Route path="/evidence-vault" element={<EvidenceVaultPage />} />
         <Route path="/case-tracker" element={<CaseTrackerPage />} />
         <Route path="/admin/verification" element={<AdminVerificationPage />} />
+        <Route path="/admin/duplicate-detection" element={<DuplicateDetectionPage />} />
+        <Route path="/admin/fraud-moderation" element={<FraudModerationPage />} />
+        <Route path="/flagged-items" element={<FlaggedItemsPage />} />
         <Route path="/dashboard" element={<UserDashboardPage />} />
         <Route path="/my-reports" element={<MyReportsPage />} />
         <Route path="/offline-drafts" element={<OfflineDraftsPage />} />
@@ -46,5 +58,6 @@ function App() {
     </BrowserRouter>
   );
 }
+
 
 export default App;

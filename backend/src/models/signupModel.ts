@@ -21,6 +21,13 @@ export async function createAccount(name: string, email: string, password: strin
          values ($1, $2, $3)`,
         [createdUser.user_id, affiliation, name],
       );
+    } else if (role === 'admin') {
+      await client.query(
+        `insert into admins (user_id, employee_id)
+         values ($1, $2)
+         on conflict (user_id) do nothing`,
+        [createdUser.user_id, affiliation || null],
+      );
     } else {
       await client.query(
         `insert into government_officers (user_id, department)
