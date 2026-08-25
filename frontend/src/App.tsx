@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import AnonymousSubmissionPage from './pages/AnonymousSubmissionPage';
@@ -20,6 +21,13 @@ import HeatMapPage from './pages/HeatMapPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import RepositoryPage from './pages/RepositoryPage';
 
+const FollowUpReportsPage = lazy(() => import('./pages/FollowUpReportsPage'));
+const CorruptionHeatmapPage = lazy(() => import('./pages/CorruptionHeatmapPage'));
+const InstitutionRankingsPage = lazy(() => import('./pages/InstitutionRankingsPage'));
+const FameShamePage = lazy(() => import('./pages/FameShamePage'));
+const AccountabilityPage = lazy(() => import('./pages/AccountabilityPage'));
+const AdminAccountabilityPage = lazy(() => import('./pages/AdminAccountabilityPage'));
+
 // Dummy page components just for the template
 const Chat = () => (
   <div className="p-8">
@@ -32,6 +40,7 @@ function App() {
   return (
     <BrowserRouter>
       {/* The actual pages */}
+      <Suspense fallback={<div className="min-h-screen bg-bg-dark text-on-surface grid place-items-center text-sm font-bold">Loading feature...</div>}>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/repository" element={<RepositoryPage />} />
@@ -54,7 +63,15 @@ function App() {
         <Route path="/verification" element={<VerificationPage />} />
         <Route path="/articles" element={<ArticlesDirectoryPage />} />
         <Route path="/articles/:slug" element={<ArticleDetailPage />} />
+        <Route path="/case-follow-ups" element={<FollowUpReportsPage />} />
+        <Route path="/corruption-heatmap" element={<CorruptionHeatmapPage />} />
+        <Route path="/institution-rankings" element={<InstitutionRankingsPage initialMode="redFlags" />} />
+        <Route path="/trust-scores" element={<InstitutionRankingsPage initialMode="trust" />} />
+        <Route path="/fame-shame" element={<FameShamePage />} />
+        <Route path="/accountability" element={<AccountabilityPage />} />
+        <Route path="/admin/accountability" element={<AdminAccountabilityPage />} />
       </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

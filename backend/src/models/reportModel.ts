@@ -40,7 +40,7 @@ export async function findDuplicateCandidates(category: string, district: string
 
 export async function findExistingRecentReport(userId: string, title: string, description: string) {
   const result = await pool.query(
-    `select r.report_id, r.title, r.category, r.status, r.is_anonymous, r.submission_date
+    `select r.report_id, r.reference_no, r.title, r.category, r.status, r.is_anonymous, r.submission_date
      from reports r
      join citizens c on c.citizen_id = r.citizen_id
      where c.user_id = $1
@@ -86,7 +86,7 @@ export async function createReport(userId: string, report: NewReport, screening:
     const result = await client.query(
       `insert into reports (citizen_id, location_id, title, description, category, incident_datetime, is_anonymous, status, duplicate_score)
        values ($1, $2, $3, $4, $5::report_category, $6, $7, $8::report_status, $9)
-       returning report_id, title, category, status, is_anonymous, submission_date`,
+       returning report_id, reference_no, title, category, status, is_anonymous, submission_date`,
       [citizenResult.rows[0].citizen_id, locationId, report.title, report.description, report.category, report.incidentDateTime, report.isAnonymous, screening.status, screening.duplicateScore],
     );
 
@@ -118,7 +118,7 @@ export async function createReport(userId: string, report: NewReport, screening:
 
 export async function listReports() {
   const result = await pool.query(
-    `select report_id, title, description, category, status, is_anonymous, submission_date
+    `select report_id, reference_no, title, description, category, status, is_anonymous, submission_date
      from reports
      order by submission_date desc`,
   );
@@ -127,10 +127,11 @@ export async function listReports() {
 
 export async function listReportsByUser(userId: string) {
   const result = await pool.query(
-    `select r.report_id, r.title, r.description, r.category, r.status, r.is_anonymous,
+    `select r.report_id, r.reference_no, cse.reference_no as case_reference, r.title, r.description, r.category, r.status, r.is_anonymous,
             r.incident_datetime, r.submission_date, r.updated_at
      from reports r
      join citizens c on c.citizen_id = r.citizen_id
+     left join cases cse on cse.report_id = r.report_id
      where c.user_id = $1
      order by r.submission_date desc`,
     [userId],

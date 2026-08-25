@@ -4,8 +4,8 @@ import { findCase } from '../models/caseModel.js';
 
 export async function getCase(request: AuthenticatedRequest, response: Response, next: NextFunction) {
   const caseId = String(request.params.id ?? '');
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(caseId)) {
-    response.status(400).json({ error: 'Enter a valid case ID.' });
+  if (!/^(?:[0-9a-f]{8}-[0-9a-f-]{27}|TU-[RC]-[A-Z0-9]{10})$/i.test(caseId)) {
+    response.status(400).json({ error: 'Enter a valid case or report reference.' });
     return;
   }
   try {

@@ -2,7 +2,9 @@ import { apiRequest } from './apiClient';
 
 export interface CaseRecord {
   case_id: string;
+  reference_no: string;
   report_id: string;
+  report_reference: string;
   report_title: string;
   status: string;
   opened_at: string;

@@ -17,6 +17,8 @@ import { anonymousReportRoutes } from './routes/anonymousReportRoutes.js';
 import mapRoutes from './routes/mapRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import repositoryRoutes from './routes/repositoryRoutes.js';
+import { adminTransparencyRoutes, publicTransparencyRoutes } from './routes/transparencyRoutes.js';
+import { accountabilityRoutes, adminAccountabilityRoutes } from './routes/accountabilityRoutes.js';
 
 const app = express();
 app.use(cors({ origin: config.frontendOrigin, credentials: true }));
@@ -37,6 +39,10 @@ app.use('/api/anonymous-reports', anonymousReportRoutes);
 app.use('/api/map', mapRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/repository', repositoryRoutes);
+app.use('/api/public', publicTransparencyRoutes);
+app.use('/api/admin/transparency', adminTransparencyRoutes);
+app.use('/api/accountability', accountabilityRoutes);
+app.use('/api/admin/accountability', adminAccountabilityRoutes);
 
 
 app.get('/api/health', async (_request, response, next) => {

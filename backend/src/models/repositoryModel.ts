@@ -1,121 +1,66 @@
 import { pool } from './database.js';
+import { redactPublicText } from '../services/publicRedactionService.js';
 
-export interface PublicReportItem {
-  report_id: string;
-  title: string;
-  category: string;
-  status: string;
-  submission_date: string;
-  district: string | null;
-  division: string | null;
-  institution_name: string | null;
-  case_id: string | null;
-  case_status: string | null;
-  description: string;
-}
+export interface PublicReportsFilterOptions { query?: string | undefined; category?: string | undefined; district?: string | undefined; caseStatus?: string | undefined }
+export interface PublicReportsSortOptions { sortBy?: string | undefined; sortOrder?: string | undefined }
+export interface PublicReportsPaginationOptions { page?: number | undefined; limit?: number | undefined }
 
-export interface PublicReportsFilterOptions {
-  category?: string | undefined;
-  district?: string | undefined;
-  caseStatus?: string | undefined;
-}
-
-export interface PublicReportsSortOptions {
-  sortBy?: string | undefined; // 'time' | 'name'
-  sortOrder?: string | undefined; // 'asc' | 'desc'
-}
-
-export interface PublicReportsPaginationOptions {
-  page?: number | undefined;
-  limit?: number | undefined;
-}
-
-export interface PublicReportsResult {
-  reports: PublicReportItem[];
-  totalCount: number;
-}
-
-export async function getPublicReports(
-  filters: PublicReportsFilterOptions,
-  sort: PublicReportsSortOptions,
-  pagination: PublicReportsPaginationOptions
-): Promise<PublicReportsResult> {
-  const whereClauses: string[] = [];
+export async function getPublicReports(filters: PublicReportsFilterOptions, sort: PublicReportsSortOptions, pagination: PublicReportsPaginationOptions) {
+  const where = [`r.is_public = true`, `r.status in ('verified', 'closed')`];
   const params: unknown[] = [];
-  let paramIndex = 1;
-
-  if (filters.category && filters.category.trim() && filters.category.toLowerCase() !== 'all') {
-    whereClauses.push(`prd.category::text ILIKE $${paramIndex}`);
-    params.push(filters.category.trim());
-    paramIndex++;
+  const add = (clause: string, value: unknown) => { params.push(value); where.push(clause.replace('?', `$${params.length}`)); };
+  if (filters.query?.trim()) {
+    params.push(`%${filters.query.trim()}%`);
+    const index = params.length;
+    where.push(`(r.reference_no ilike $${index} or c.reference_no ilike $${index}
+      or coalesce(r.public_summary, '') ilike $${index} or coalesce(r.victim_context, '') ilike $${index}
+      or array_to_string(r.public_keywords, ' ') ilike $${index} or r.category::text ilike $${index}
+      or coalesce(l.district, '') ilike $${index} or coalesce(l.division, '') ilike $${index}
+      or coalesce(i.name, '') ilike $${index})`);
   }
-
-  if (filters.district && filters.district.trim() && filters.district.toLowerCase() !== 'all') {
-    whereClauses.push(`prd.district ILIKE $${paramIndex}`);
-    params.push(`%${filters.district.trim()}%`);
-    paramIndex++;
-  }
-
-  if (filters.caseStatus && filters.caseStatus.trim() && filters.caseStatus.toLowerCase() !== 'all') {
-    whereClauses.push(`prd.case_status::text ILIKE $${paramIndex}`);
-    params.push(filters.caseStatus.trim());
-    paramIndex++;
-  }
-
-  const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
-
-  // Validate sort column and direction to avoid SQL injection
-  let sortColumn = 'prd.submission_date';
-  if (sort.sortBy === 'name') {
-    sortColumn = 'prd.title';
-  }
-
-  const sortDirection = sort.sortOrder?.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
-
-  const limit = pagination.limit && pagination.limit > 0 ? pagination.limit : 15;
-  const page = pagination.page && pagination.page > 0 ? pagination.page : 1;
-  const offset = (page - 1) * limit;
-
-  // Query matching records and total count using COUNT(*) OVER()
-  const query = `
-    SELECT 
-      prd.report_id,
-      prd.title,
-      prd.category::text AS category,
-      prd.status::text AS status,
-      prd.submission_date,
-      prd.district,
-      prd.division,
-      prd.institution_name,
-      prd.case_id,
-      prd.case_status::text AS case_status,
-      r.description,
-      COUNT(*) OVER()::int AS full_count
-    FROM public_report_directory prd
-    JOIN reports r ON prd.report_id = r.report_id
-    ${whereSql}
-    ORDER BY ${sortColumn} ${sortDirection}
-    LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
-  `;
-
-  params.push(limit, offset);
-
-  const result = await pool.query(query, params);
-
-  const totalCount = result.rows.length > 0 ? result.rows[0].full_count : 0;
-  const reports: PublicReportItem[] = result.rows.map((row) => ({
-    report_id: row.report_id,
-    title: row.title,
-    category: row.category,
-    status: row.status,
-    submission_date: row.submission_date,
-    district: row.district,
-    division: row.division,
-    institution_name: row.institution_name,
-    case_id: row.case_id,
-    case_status: row.case_status,
-    description: row.description,
-  }));
-
-  return { reports, totalCount };
+  if (filters.category && filters.category.toLowerCase() !== 'all') add('r.category::text = ?', filters.category.trim().toLowerCase());
+  if (filters.district && filters.district.toLowerCase() !== 'all') add('lower(l.district) = lower(?)', filters.district.trim());
+  if (filters.caseStatus && filters.caseStatus.toLowerCase() !== 'all') add('c.status::text = ?', filters.caseStatus.trim().toLowerCase());
+  const sortColumn = sort.sortBy === 'name' ? 'r.category::text' : 'r.submission_date';
+  const direction = sort.sortOrder?.toLowerCase() === 'asc' ? 'asc' : 'desc';
+  const limit = Math.min(50, Math.max(1, pagination.limit ?? 15));
+  const page = Math.max(1, pagination.page ?? 1);
+  params.push(limit, (page - 1) * limit);
+  const result = await pool.query(
+    `select r.reference_no as report_reference, c.reference_no as case_reference,
+            r.public_summary, r.victim_context, r.public_keywords,
+            r.category::text, r.status::text, r.submission_date,
+            l.district, l.division, i.name as institution_name, c.status::text as case_status,
+            count(w.contribution_id) filter (where w.status = 'accepted')::int as corroborating_witnesses,
+            count(*) over()::int as full_count
+       from reports r
+       left join cases c on c.report_id = r.report_id
+       left join locations l on l.location_id = r.location_id
+       left join institutions i on i.institution_id = r.institution_id
+       left join witness_contributions w on w.report_id = r.report_id
+      where ${where.join(' and ')}
+      group by r.report_id, c.case_id, l.location_id, i.institution_id
+      order by ${sortColumn} ${direction}
+      limit $${params.length - 1} offset $${params.length}`,
+    params,
+  );
+  return {
+    totalCount: result.rows[0]?.full_count ?? 0,
+    reports: result.rows.map((row) => ({
+      report_reference: row.report_reference,
+      case_reference: row.case_reference,
+      title: `${String(row.category).replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())} Incident Alert`,
+      summary: redactPublicText(row.public_summary || 'A verified incident has been published for community awareness.'),
+      victim_context: redactPublicText(row.victim_context, 300),
+      keywords: row.public_keywords,
+      category: row.category,
+      status: row.status,
+      submission_date: row.submission_date,
+      district: row.district,
+      division: row.division,
+      institution_name: row.institution_name,
+      case_status: row.case_status,
+      corroborating_witnesses: row.corroborating_witnesses,
+    })),
+  };
 }

@@ -20,6 +20,8 @@ export interface ReportSubmission {
 
 export interface Report {
   report_id: string;
+  reference_no: string;
+  case_reference: string | null;
   title: string;
   description: string;
   category: string;
@@ -38,14 +40,14 @@ export interface ReportScreening {
 }
 
 export interface ReportSubmissionResult {
-  report: { report_id: string; status: string };
+  report: { report_id: string; reference_no: string; status: string };
   screening: ReportScreening;
 }
 
 export interface BatchSyncResultItem {
   clientDraftId: string;
   status: 'synced' | 'duplicate_prevented' | 'failed';
-  report?: { report_id: string; status: string };
+  report?: { report_id: string; reference_no: string; status: string };
   screening?: ReportScreening | null;
   error?: string;
 }

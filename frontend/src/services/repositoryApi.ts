@@ -1,7 +1,8 @@
 import { apiRequest } from './apiClient';
 
 export interface PublicReportItem {
-  report_id: string;
+  report_reference: string;
+  case_reference: string | null;
   title: string;
   category: string;
   status: string;
@@ -9,9 +10,11 @@ export interface PublicReportItem {
   district: string | null;
   division: string | null;
   institution_name: string | null;
-  case_id: string | null;
   case_status: string | null;
-  description: string;
+  summary: string;
+  victim_context: string;
+  keywords: string[];
+  corroborating_witnesses: number;
 }
 
 export interface PublicReportsResponse {
@@ -23,6 +26,7 @@ export interface PublicReportsResponse {
 
 export interface GetPublicReportsParams {
   page?: number;
+  q?: string;
   category?: string;
   district?: string;
   caseStatus?: string;
@@ -34,6 +38,7 @@ export async function getPublicReports(params: GetPublicReportsParams = {}): Pro
   const query = new URLSearchParams();
 
   if (params.page) query.append('page', params.page.toString());
+  if (params.q?.trim()) query.append('q', params.q.trim());
   if (params.category && params.category !== 'All') query.append('category', params.category);
   if (params.district && params.district !== 'All') query.append('district', params.district);
   if (params.caseStatus && params.caseStatus !== 'All') query.append('caseStatus', params.caseStatus);

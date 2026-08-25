@@ -289,6 +289,20 @@ export default function UserDashboardPage() {
           )}
         </section>
 
+        <section className="mt-6 border border-white/10 rounded-lg p-6 md:p-8 bg-white/[0.02]">
+          <div className="flex items-center gap-3 mb-3"><ShieldIcon className="w-5 h-5 text-brand-red" /><h2 className="font-sora text-lg font-bold text-white">Transparency and Accountability</h2></div>
+          <p className="text-sm text-on-surface/60 mb-6">Explore verified incident patterns, institutional performance, and public case outcomes.</p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <Link to="/case-follow-ups" className="px-5 py-4 border border-white/15 rounded-lg text-sm font-bold text-white hover:border-brand-teal/50 hover:text-brand-teal transition-colors">Case Follow-Ups</Link>
+            <Link to="/corruption-heatmap" className="px-5 py-4 border border-brand-red/30 rounded-lg text-sm font-bold text-brand-red hover:bg-brand-red/10 transition-colors">Corruption Heatmap</Link>
+            <Link to="/institution-rankings" className="px-5 py-4 border border-white/15 rounded-lg text-sm font-bold text-white hover:border-brand-red/50 hover:text-brand-red transition-colors">Red Flag Rankings</Link>
+            <Link to="/trust-scores" className="px-5 py-4 border border-brand-teal/30 rounded-lg text-sm font-bold text-brand-teal hover:bg-brand-teal/10 transition-colors">Trust Scores</Link>
+            <Link to="/fame-shame" className="px-5 py-4 border border-white/15 rounded-lg text-sm font-bold text-white hover:border-brand-teal/50 hover:text-brand-teal transition-colors">Fame and Shame Wall</Link>
+            <Link to="/accountability" className="px-5 py-4 border border-brand-teal/30 rounded-lg text-sm font-bold text-brand-teal hover:bg-brand-teal/10 transition-colors">Safety, Appeals, Alerts and Witnesses</Link>
+            <Link to="/repository" className="px-5 py-4 border border-white/15 rounded-lg text-sm font-bold text-white hover:border-brand-teal/50 hover:text-brand-teal transition-colors">Search Public References</Link>
+          </div>
+        </section>
+
         {/* Identity Verification (Citizen Only) */}
         {user.role === 'citizen' && (
           <section className="mt-6 border border-white/10 rounded-lg p-6 md:p-8 bg-white/[0.02]">

@@ -4,6 +4,7 @@ import { getPublicReports } from '../models/repositoryModel.js';
 export async function fetchPublicReports(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const page = parseInt(req.query.page as string, 10) || 1;
+    const query = typeof req.query.q === 'string' ? req.query.q.trim() : undefined;
     const category = typeof req.query.category === 'string' ? req.query.category : undefined;
     const district = typeof req.query.district === 'string' ? req.query.district : undefined;
     const caseStatus = typeof req.query.caseStatus === 'string' ? req.query.caseStatus : undefined;
@@ -12,7 +13,7 @@ export async function fetchPublicReports(req: Request, res: Response, next: Next
 
     const limit = 15;
     const { reports, totalCount } = await getPublicReports(
-      { category, district, caseStatus },
+      { query, category, district, caseStatus },
       { sortBy, sortOrder },
       { page, limit }
     );
