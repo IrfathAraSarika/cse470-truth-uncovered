@@ -4,12 +4,11 @@ export interface UserProfile {
   userId: string;
   email: string;
   fullName: string;
-  role: 'citizen' | 'admin' | 'officer' | 'ngo_partner';
+  role: 'citizen' | 'admin';
   isVerified: boolean;
   createdAt: string;
   civicPoints?: number;
   employeeId?: string;
-  organizationName?: string;
 }
 
 export interface DashboardData {

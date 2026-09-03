@@ -1,3 +1,5 @@
+export type UserRole = 'citizen' | 'admin';
+
 export interface Feature {
   id: string;
   title: string;
@@ -7,7 +9,7 @@ export interface Feature {
   badge?: string;
   badgeColor?: string;
   color: 'teal' | 'red' | 'amber' | 'emerald';
-  roles: ('citizen' | 'admin' | 'officer' | 'ngo_partner')[];
+  roles: UserRole[];
   category: 'reporting' | 'admin' | 'transparency' | 'accountability' | 'analytics';
 }
 
@@ -73,7 +75,7 @@ export const FEATURES: Feature[] = [
     path: '/case-tracker',
     icon: '📈',
     color: 'teal',
-    roles: ['citizen', 'admin', 'officer', 'ngo_partner'],
+    roles: ['citizen', 'admin'],
     category: 'reporting',
   },
   {
@@ -83,7 +85,7 @@ export const FEATURES: Feature[] = [
     path: '/articles',
     icon: '📚',
     color: 'teal',
-    roles: ['citizen', 'admin', 'officer', 'ngo_partner'],
+    roles: ['citizen', 'admin'],
     category: 'transparency',
   },
 
@@ -168,7 +170,7 @@ export const FEATURES: Feature[] = [
     path: '/case-follow-ups',
     icon: '🔗',
     color: 'teal',
-    roles: ['citizen', 'admin', 'officer', 'ngo_partner'],
+    roles: ['citizen', 'admin'],
     category: 'transparency',
   },
   {
@@ -178,7 +180,7 @@ export const FEATURES: Feature[] = [
     path: '/corruption-heatmap',
     icon: '🗺️',
     color: 'red',
-    roles: ['citizen', 'admin', 'officer', 'ngo_partner'],
+    roles: ['citizen', 'admin'],
     category: 'transparency',
   },
   {
@@ -188,7 +190,7 @@ export const FEATURES: Feature[] = [
     path: '/institution-rankings',
     icon: '🏆',
     color: 'red',
-    roles: ['citizen', 'admin', 'officer', 'ngo_partner'],
+    roles: ['citizen', 'admin'],
     category: 'transparency',
   },
   {
@@ -198,7 +200,7 @@ export const FEATURES: Feature[] = [
     path: '/repository',
     icon: '🔍',
     color: 'teal',
-    roles: ['citizen', 'admin', 'officer', 'ngo_partner'],
+    roles: ['citizen', 'admin'],
     category: 'transparency',
   },
   {
@@ -208,9 +210,9 @@ export const FEATURES: Feature[] = [
     path: '/analytics',
     icon: '📊',
     color: 'teal',
-    roles: ['admin', 'officer', 'ngo_partner'],
+    roles: ['admin'],
     category: 'analytics',
-    badge: 'Data',
+    badge: 'Admin',
   },
 
   // ============= ACCOUNTABILITY =============
@@ -221,9 +223,9 @@ export const FEATURES: Feature[] = [
     path: '/admin/accountability',
     icon: '⚖️',
     color: 'red',
-    roles: ['citizen', 'admin', 'officer'],
+    roles: ['admin'],
     category: 'accountability',
-    badge: 'Security',
+    badge: 'Admin',
   },
   {
     id: 'dashboard',
@@ -232,7 +234,7 @@ export const FEATURES: Feature[] = [
     path: '/dashboard',
     icon: '🏠',
     color: 'teal',
-    roles: ['citizen', 'admin', 'officer', 'ngo_partner'],
+    roles: ['citizen', 'admin'],
     category: 'reporting',
   },
 ];
@@ -255,15 +257,10 @@ export function getFeaturesByCategory(
 export const ROLE_LABELS: Record<string, string> = {
   citizen: 'Citizen',
   admin: 'Administrator',
-  officer: 'Government Officer',
-  ngo_partner: 'NGO Partner',
 };
 
 export const ROLE_DESCRIPTIONS: Record<string, string> = {
   citizen:
     'Report incidents, track cases, and participate in transparent accountability',
   admin: 'Verify reports, manage moderation, and oversee platform operations',
-  officer:
-    'Review cases, provide official updates, and coordinate investigations',
-  ngo_partner: 'Monitor cases, provide follow-ups, and support investigations',
 };

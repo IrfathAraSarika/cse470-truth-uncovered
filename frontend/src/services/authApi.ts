@@ -8,5 +8,5 @@ export interface LoginResponse {
 export const login = (email: string, password: string) =>
   apiRequest<LoginResponse>('/login', { method: 'POST', body: JSON.stringify({ email, password }) });
 
-export const signup = (name: string, email: string, password: string, role: string, affiliation: string) =>
-  apiRequest<{ userId: string }>('/signup', { method: 'POST', body: JSON.stringify({ name, email, password, role, affiliation }) });
+export const signup = (name: string, email: string, password: string, role: 'citizen' | 'admin' = 'citizen') =>
+  apiRequest<{ userId: string }>('/signup', { method: 'POST', body: JSON.stringify({ name, email, password, role }) });

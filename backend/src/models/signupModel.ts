@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { pool } from './database.js';
 
-export async function createAccount(name: string, email: string, password: string, role: string, affiliation: string) {
+export async function createAccount(name: string, email: string, password: string, role: string) {
   const client = await pool.connect();
   try {
     await client.query('begin');
@@ -15,17 +15,11 @@ export async function createAccount(name: string, email: string, password: strin
          values ($1, $2, $3, $4, false)`,
         [createdUser.user_id, email, name, passwordHash],
       );
-    } else if (role === 'ngo_partner') {
+    } else if (role === 'admin') {
       await client.query(
-        `insert into ngo_partners (user_id, organization_name, contact_person)
-         values ($1, $2, $3)`,
-        [createdUser.user_id, affiliation, name],
-      );
-    } else {
-      await client.query(
-        `insert into government_officers (user_id, department)
-         values ($1, $2)`,
-        [createdUser.user_id, affiliation],
+        `insert into admins (user_id)
+         values ($1)`,
+        [createdUser.user_id],
       );
     }
     await client.query('commit');

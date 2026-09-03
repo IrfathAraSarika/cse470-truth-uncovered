@@ -29,6 +29,22 @@ const FameShamePage = lazy(() => import('./pages/FameShamePage'));
 const AccountabilityPage = lazy(() => import('./pages/AccountabilityPage'));
 const AdminAccountabilityPage = lazy(() => import('./pages/AdminAccountabilityPage'));
 
+// Root route: show login at first if not logged in, otherwise show role-based dashboard
+function RootRoute() {
+  const userRaw = localStorage.getItem('user');
+  if (userRaw) {
+    try {
+      const user = JSON.parse(userRaw);
+      if (user?.role) {
+        return <DashboardPage />;
+      }
+    } catch {
+      localStorage.removeItem('user');
+    }
+  }
+  return <LoginPage />;
+}
+
 // Dummy page components just for the template
 const Chat = () => (
   <div className="p-8">
@@ -43,7 +59,8 @@ function App() {
       {/* The actual pages */}
       <Suspense fallback={<div className="min-h-screen bg-bg-dark text-on-surface grid place-items-center text-sm font-bold">Loading feature...</div>}>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<RootRoute />} />
+        <Route path="/landing" element={<LandingPage />} />
         <Route path="/repository" element={<RepositoryPage />} />
         <Route path="/heatmap" element={<HeatMapPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />

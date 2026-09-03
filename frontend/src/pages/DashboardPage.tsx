@@ -16,12 +16,6 @@ const colorMap: Record<string, string> = {
   emerald: 'border-emerald-400/30 bg-emerald-400/5 hover:border-emerald-400/50 hover:bg-emerald-400/10',
 };
 
-const colorTextMap: Record<string, string> = {
-  teal: 'text-brand-teal',
-  red: 'text-brand-red',
-  amber: 'text-amber-400',
-  emerald: 'text-emerald-400',
-};
 
 interface FeatureCardProps {
   icon: string;
