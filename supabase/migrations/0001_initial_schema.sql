@@ -169,10 +169,12 @@ create table evidence_files (
   evidence_id uuid primary key default gen_random_uuid(),
   report_id uuid not null references reports(report_id) on delete cascade,
   file_path text not null,
-  file_type varchar(80) not null,
-  file_size_bytes bigint check (file_size_bytes is null or file_size_bytes >= 0),
-  watermark_id varchar(120) unique,
+  file_type varchar(100) not null,
+  original_filename text not null default 'evidence_file',
+  file_size_bytes bigint not null,
   extracted_gps jsonb,
+  file_hash varchar(64) not null,
+  encryption_iv varchar(32) not null,
   uploaded_at timestamptz not null default now()
 );
 

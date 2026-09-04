@@ -589,10 +589,14 @@ export default function ReportForm() {
 
           <div className="mt-6 flex flex-col sm:flex-row justify-between gap-4">
             <Link
-              to="/evidence-vault"
-              className="px-5 py-3 border border-brand-teal/40 text-brand-teal rounded-lg text-sm font-bold text-center"
+              to={reportId ? `/evidence-vault?reportId=${reportId}` : '/evidence-vault'}
+              className={`px-5 py-3 border rounded-lg text-sm font-bold text-center transition-colors ${
+                reportId
+                  ? 'border-brand-teal bg-brand-teal/10 text-brand-teal hover:bg-brand-teal/20'
+                  : 'border-white/10 text-on-surface/50 hover:text-white hover:border-white/20'
+              }`}
             >
-              Continue to Evidence Vault
+              {reportId ? '🔒 Upload Evidence for this Report' : 'Evidence Vault'}
             </Link>
             <div className="flex flex-col sm:flex-row gap-3">
               <button
