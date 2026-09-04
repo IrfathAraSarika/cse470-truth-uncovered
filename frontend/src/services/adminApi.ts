@@ -1,6 +1,6 @@
 import { apiRequest } from './apiClient';
 
-export interface AdminReport { report_id: string; title: string; description: string; category: string; status: string; is_anonymous: boolean; submission_date: string; duplicate_score: number; evidence_count: number; review_count: number; flag_count: number }
+export interface AdminReport { report_id: string; reference_no: string; case_reference: string | null; title: string; description: string; category: string; status: string; is_anonymous: boolean; submission_date: string; duplicate_score: number; evidence_count: number; review_count: number; flag_count: number }
 export interface AdminReportDetail {
   report: AdminReport;
   evidence: Array<{ evidence_id: string; file_type: string; file_size_bytes: number | null }>;

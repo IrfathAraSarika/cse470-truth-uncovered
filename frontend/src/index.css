@@ -35,6 +35,16 @@ body {
   border-color: rgba(0, 173, 181, 0.4);
 }
 
+@layer components {
+  .field { @apply w-full px-4 py-3 bg-black/40 border border-white/10 rounded-lg text-sm text-on-surface focus:outline-none focus:border-brand-teal/50; }
+  .panel { @apply border border-white/10 rounded-lg p-5 bg-white/[0.02]; }
+  .primary { @apply px-5 py-3 bg-brand-teal text-black rounded-lg text-sm font-bold disabled:opacity-40; }
+  .secondary { @apply px-4 py-2 border border-brand-teal/40 text-brand-teal rounded-lg text-xs font-bold; }
+  .danger { @apply px-4 py-2 border border-brand-red/40 text-brand-red rounded-lg text-xs font-bold; }
+  .badge { @apply px-2.5 py-1 rounded bg-white/5 text-xs font-bold text-on-surface/60; }
+  .ref { @apply mt-2 text-xs font-mono text-brand-teal break-all; }
+}
+
 /* High-contrast Dark Mode Leaflet Filter */
 .leaflet-tile-pane {
   filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(120%);

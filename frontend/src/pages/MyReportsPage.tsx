@@ -115,7 +115,8 @@ function ReportCard({ report, index }: { report: Report; index: number }) {
       {expanded && (
         <div className="px-6 pb-6 pt-1 border-t border-white/5">
           <div className="rounded-xl bg-black/30 px-5 py-2 mt-2">
-            <FieldRow label="Report ID"      value={<span className="font-mono text-xs">{report.report_id}</span>} />
+            <FieldRow label="Report Reference" value={<span className="font-mono text-xs text-brand-teal">{report.reference_no}</span>} />
+            {report.case_reference && <FieldRow label="Case Reference" value={<span className="font-mono text-xs text-brand-teal">{report.case_reference}</span>} />}
             <FieldRow label="Title"          value={report.title} />
             <FieldRow label="Category"       value={CATEGORY_LABEL[report.category] ?? report.category} />
             <FieldRow label="Status"         value={<StatusBadge status={report.status} />} />
@@ -150,6 +151,7 @@ export default function MyReportsPage() {
   const [reports,  setReports]  = useState<Report[]>([]);
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState('');
+  const [search,   setSearch]   = useState('');
 
   useEffect(() => {
     if (!citizen) return;
@@ -175,6 +177,12 @@ export default function MyReportsPage() {
     localStorage.removeItem('citizen');
     navigate('/login');
   };
+
+  const visibleReports = reports.filter((report) => {
+    const query = search.trim().toLowerCase();
+    return !query || [report.reference_no, report.case_reference, report.title, report.category, report.status]
+      .some((value) => value?.toLowerCase().includes(query));
+  });
 
   return (
     <div className="min-h-screen bg-bg-dark text-on-surface font-inter">
@@ -245,6 +253,10 @@ export default function MyReportsPage() {
           </div>
         )}
 
+        {!loading && !error && reports.length > 0 && (
+          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search your report/case reference, title, category, or status" className="field mb-6" />
+        )}
+
         {/* Content states */}
         {loading && (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
@@ -277,12 +289,15 @@ export default function MyReportsPage() {
           </div>
         )}
 
-        {!loading && !error && reports.length > 0 && (
+        {!loading && !error && visibleReports.length > 0 && (
           <div className="flex flex-col gap-3">
-            {reports.map((report, i) => (
+            {visibleReports.map((report, i) => (
               <ReportCard key={report.report_id} report={report} index={i} />
             ))}
           </div>
+        )}
+        {!loading && !error && reports.length > 0 && visibleReports.length === 0 && (
+          <p className="py-16 text-center text-sm text-on-surface/50">No reports match this search.</p>
         )}
       </main>
     </div>

@@ -4,36 +4,34 @@ import { getPublicReports, type PublicReportItem } from '../services/repositoryA
 
 const CATEGORIES = [
   'All',
-  'Bribery',
-  'Embezzlement',
-  'Extortion',
-  'Fraud',
-  'Nepotism',
-  'Procurement Fraud',
-  'Regulatory Violation',
-  'Systemic Misconduct',
-  'Other',
+  'corruption',
+  'bribery',
+  'dowry',
+  'harassment',
+  'extortion',
+  'land_grabbing',
+  'hazard',
+  'antisocial_activity',
+  'other',
 ];
 
 const DISTRICTS = [
   'All',
   'Dhaka',
-  'Chittagong',
+  'Chattogram',
   'Sylhet',
   'Rajshahi',
   'Khulna',
-  'Barisal',
+  'Barishal',
   'Rangpur',
   'Mymensingh',
-  'Comilla',
-  'Gazipur',
-  'Narayanganj',
 ];
 
-const CASE_STATUSES = ['All', 'under_investigation', 'prosecution_initiated', 'resolved', 'closed'];
+const CASE_STATUSES = ['All', 'received', 'verified', 'under_investigation', 'action_taken', 'closed'];
 
 export default function RepositoryPage() {
   const [category, setCategory] = useState<string>('All');
+  const [query, setQuery] = useState<string>('');
   const [district, setDistrict] = useState<string>('All');
   const [caseStatus, setCaseStatus] = useState<string>('All');
   const [sortOption, setSortOption] = useState<string>('time_desc'); // time_desc, time_asc, name_asc, name_desc
@@ -69,6 +67,7 @@ export default function RepositoryPage() {
 
         const data = await getPublicReports({
           page,
+          q: query,
           category,
           district,
           caseStatus,
@@ -98,7 +97,7 @@ export default function RepositoryPage() {
     return () => {
       isMounted = false;
     };
-  }, [page, category, district, caseStatus, sortOption]);
+  }, [page, query, category, district, caseStatus, sortOption]);
 
   const handleFilterChange = (setter: (val: string) => void, val: string) => {
     setter(val);
@@ -171,6 +170,15 @@ export default function RepositoryPage() {
 
         {/* Filter & Sort Bar */}
         <div className="glass-card glass-border rounded-xl p-5 mb-8">
+          <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1.5">
+            Search by reference or keyword
+          </label>
+          <input
+            value={query}
+            onChange={(event) => { setQuery(event.target.value); setPage(1); }}
+            placeholder="TU-R-..., TU-C-..., bribery, district, institution..."
+            className="w-full px-4 py-3 mb-4 bg-black/60 border border-white/10 rounded-lg text-sm text-on-surface focus:outline-none focus:border-brand-teal transition-colors"
+          />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Category Filter */}
             <div>
@@ -184,7 +192,7 @@ export default function RepositoryPage() {
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat} value={cat} className="bg-[#121212] text-white">
-                    {cat}
+                    {cat === 'All' ? cat : cat.replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())}
                   </option>
                 ))}
               </select>
@@ -283,7 +291,7 @@ export default function RepositoryPage() {
 
             {/* Accordion Report List */}
             {reports.map((report) => {
-              const isExpanded = expandedId === report.report_id;
+              const isExpanded = expandedId === report.report_reference;
               const formattedDate = new Date(report.submission_date).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
@@ -292,8 +300,8 @@ export default function RepositoryPage() {
 
               return (
                 <div
-                  key={report.report_id}
-                  onClick={() => toggleAccordion(report.report_id)}
+                  key={report.report_reference}
+                  onClick={() => toggleAccordion(report.report_reference)}
                   className={`glass-card glass-border rounded-xl p-5 cursor-pointer interactive-hover transition-all duration-200 ${
                     isExpanded ? 'border-brand-teal/50 bg-black/60 shadow-lg shadow-brand-teal/5' : ''
                   }`}
@@ -364,16 +372,26 @@ export default function RepositoryPage() {
 
                       <div>
                         <span className="text-xs font-bold uppercase tracking-wider text-zinc-400 block mb-1">
-                          Report Description &amp; Findings
+                          Privacy-Safe Incident Summary
                         </span>
                         <p className="text-zinc-300 leading-relaxed font-inter whitespace-pre-line bg-black/40 border border-white/5 p-4 rounded-lg">
-                          {report.description}
+                          {report.summary}
                         </p>
                       </div>
 
-                      {report.case_id && (
+                      {report.victim_context && (
+                        <div><span className="text-xs font-bold uppercase tracking-wider text-zinc-400 block mb-1">Generalized Victim Context</span><p className="text-zinc-300">{report.victim_context}</p></div>
+                      )}
+
+                      <div className="flex flex-wrap gap-2">
+                        {report.keywords.map((keyword) => <span key={keyword} className="px-2 py-1 rounded bg-white/5 text-xs text-zinc-400">{keyword}</span>)}
+                        {report.corroborating_witnesses > 0 && <span className="px-2 py-1 rounded bg-brand-teal/10 text-xs text-brand-teal">{report.corroborating_witnesses} accepted witness contribution{report.corroborating_witnesses === 1 ? '' : 's'}</span>}
+                      </div>
+
+                      {report.case_reference && (
                         <div className="text-xs text-zinc-500 font-mono pt-2">
-                          Case Reference ID: <span className="text-zinc-300">{report.case_id}</span>
+                          Report: <span className="text-zinc-300">{report.report_reference}</span><br />
+                          Case: <span className="text-zinc-300">{report.case_reference}</span>
                         </div>
                       )}
                     </div>

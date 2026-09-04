@@ -9,6 +9,7 @@ import signupRoutes from './routes/signupRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import caseRoutes from './routes/caseRoutes.js';
 import verificationRoutes from './routes/verificationRoutes.js';
+import articleRoutes from './routes/articleRoutes.js';
 import duplicateDetectionRoutes from './routes/duplicateDetectionRoutes.js';
 import fraudSpamModerationRoutes from './routes/fraudSpamModerationRoutes.js';
 import flaggedItemRoutes from './routes/flaggedItemRoutes.js';
@@ -16,6 +17,8 @@ import { anonymousReportRoutes } from './routes/anonymousReportRoutes.js';
 import mapRoutes from './routes/mapRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import repositoryRoutes from './routes/repositoryRoutes.js';
+import { adminTransparencyRoutes, publicTransparencyRoutes } from './routes/transparencyRoutes.js';
+import { accountabilityRoutes, adminAccountabilityRoutes } from './routes/accountabilityRoutes.js';
 
 const app = express();
 app.use(cors({ origin: config.frontendOrigin, credentials: true }));
@@ -28,6 +31,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/cases', caseRoutes);
 app.use('/api/verification', verificationRoutes);
+app.use('/api/articles', articleRoutes);
 app.use('/api/duplicate-detection', duplicateDetectionRoutes);
 app.use('/api/moderation', fraudSpamModerationRoutes);
 app.use('/api/flagged-items', flaggedItemRoutes);
@@ -35,6 +39,10 @@ app.use('/api/anonymous-reports', anonymousReportRoutes);
 app.use('/api/map', mapRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/repository', repositoryRoutes);
+app.use('/api/public', publicTransparencyRoutes);
+app.use('/api/admin/transparency', adminTransparencyRoutes);
+app.use('/api/accountability', accountabilityRoutes);
+app.use('/api/admin/accountability', adminAccountabilityRoutes);
 
 
 app.get('/api/health', async (_request, response, next) => {

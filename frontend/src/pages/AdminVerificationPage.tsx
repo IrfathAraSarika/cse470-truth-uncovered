@@ -12,7 +12,7 @@ import {
 
 const filters = ['all', 'submitted', 'pending_verification', 'hidden', 'verified', 'rejected'];
 const label = (value: string) => value.replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
-const demoReport: AdminReport = { report_id: 'demo-report', title: 'Unofficial payment requested at district office', description: 'The reporter states that an official requested payment before accepting a routine public service application.', category: 'bribery', status: 'pending_verification', is_anonymous: true, submission_date: '2026-07-12T10:30:00Z', duplicate_score: 78, evidence_count: 2, review_count: 1, flag_count: 1 };
+const demoReport: AdminReport = { report_id: 'demo-report', reference_no: 'TU-R-DEMO000001', case_reference: null, title: 'Unofficial payment requested at district office', description: 'The reporter states that an official requested payment before accepting a routine public service application.', category: 'bribery', status: 'pending_verification', is_anonymous: true, submission_date: '2026-07-12T10:30:00Z', duplicate_score: 78, evidence_count: 2, review_count: 1, flag_count: 1 };
 const demoDetail: AdminReportDetail = {
   report: demoReport,
   evidence: [{ evidence_id: 'demo-evidence-1', file_type: 'image/png', file_size_bytes: 245000 }, { evidence_id: 'demo-evidence-2', file_type: 'application/pdf', file_size_bytes: 88000 }],
@@ -27,6 +27,7 @@ function ReportVerificationPanel() {
   const [selectedId, setSelectedId] = useState('demo-report');
   const [detail, setDetail] = useState<AdminReportDetail | null>(demoDetail);
   const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
@@ -85,25 +86,34 @@ function ReportVerificationPanel() {
     }
   };
 
+  const visibleReports = reports.filter((report) => {
+    const query = search.trim().toLowerCase();
+    return !query || [report.reference_no, report.case_reference, report.title, report.category]
+      .some((value) => value?.toLowerCase().includes(query));
+  });
+
   return (
     <>
       <div className="flex gap-2 overflow-x-auto mb-5">
         {filters.map((item) => <button key={item} onClick={() => setFilter(item)} className={`px-3 py-2 rounded-lg border text-xs font-bold whitespace-nowrap ${filter === item ? 'border-brand-teal/50 bg-brand-teal/10 text-brand-teal' : 'border-white/10 text-on-surface/60'}`}>{label(item)}</button>)}
       </div>
+      <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search report/case reference, title, or category" className="field mb-5" />
       <div className="grid lg:grid-cols-[350px_1fr] border border-white/10 rounded-lg overflow-hidden min-h-[650px]">
         <aside className="border-b lg:border-b-0 lg:border-r border-white/10 max-h-[650px] overflow-y-auto">
-          {reports.map((report) => (
+          {visibleReports.map((report) => (
             <button key={report.report_id} onClick={() => setSelectedId(report.report_id)} className={`w-full p-5 text-left border-b border-white/10 ${selectedId === report.report_id ? 'bg-brand-teal/10' : 'hover:bg-white/[0.03]'}`}>
               <div className="flex justify-between gap-2"><span className="text-[11px] font-bold uppercase text-brand-teal">{label(report.status)}</span>{report.flag_count > 0 && <span className="text-[10px] font-bold text-brand-red">{report.flag_count} FLAG{report.flag_count === 1 ? '' : 'S'}</span>}</div>
               <h2 className="font-sora text-sm font-bold text-white my-2">{report.title}</h2>
+              <p className="text-[10px] font-mono text-brand-teal mb-2">{report.reference_no}</p>
               <p className="text-[11px] text-on-surface/50">{report.evidence_count} evidence / {report.review_count} reviews / {report.duplicate_score}% match</p>
             </button>
           ))}
+          {visibleReports.length === 0 && <p className="p-5 text-sm text-on-surface/50">No reports match this search.</p>}
         </aside>
         <section className="p-6 md:p-8 max-h-[650px] overflow-y-auto">
           {!detail ? <p className="text-sm text-on-surface/50">Select a report.</p> : (
             <>
-              <div className="pb-5 border-b border-white/10"><span className="text-xs font-bold text-brand-teal uppercase">{label(detail.report.category)}</span><h2 className="font-sora text-2xl font-bold text-white mt-2">{detail.report.title}</h2><p className="text-xs text-on-surface/40 mt-2">{new Date(detail.report.submission_date).toLocaleString()}</p></div>
+              <div className="pb-5 border-b border-white/10"><span className="text-xs font-bold text-brand-teal uppercase">{label(detail.report.category)}</span><h2 className="font-sora text-2xl font-bold text-white mt-2">{detail.report.title}</h2><p className="text-xs font-mono text-brand-teal mt-2">{detail.report.reference_no}{detail.report.case_reference ? ` / ${detail.report.case_reference}` : ''}</p><p className="text-xs text-on-surface/40 mt-2">{new Date(detail.report.submission_date).toLocaleString()}</p></div>
               <div className="py-6 border-b border-white/10"><h3 className="font-sora text-sm font-bold text-white mb-3">Incident Details</h3><p className="text-sm leading-7 text-on-surface/70 whitespace-pre-wrap">{detail.report.description}</p></div>
               <div className="py-6 border-b border-white/10">
                 <h3 className="font-sora text-sm font-bold text-white mb-3">Automated Screening</h3>
@@ -243,15 +253,17 @@ function NidVerificationPanel() {
   );
 }
 
+import { AdminArticlesPanel } from '../components/AdminArticlesPanel';
+
 export default function AdminVerificationPage() {
-  const [tab, setTab] = useState<'reports' | 'nid'>('reports');
+  const [tab, setTab] = useState<'reports' | 'nid' | 'articles'>('reports');
 
   return (
     <div className="min-h-screen bg-bg-dark text-on-surface font-inter">
       <header className="border-b border-white/10 bg-bg-dark/95">
         <div className="max-w-[1400px] mx-auto h-16 px-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3"><LogoIcon /><span className="font-sora font-bold">Truth Uncovered</span></Link>
-          <span className="text-xs font-bold uppercase text-brand-teal">Admin Verification</span>
+          <span className="text-xs font-bold uppercase text-brand-teal">Admin Verification & Management</span>
         </div>
       </header>
       <main className="max-w-[1400px] mx-auto px-4 md:px-6 py-8">
@@ -267,9 +279,15 @@ export default function AdminVerificationPage() {
             <Link to="/admin/fraud-moderation" className="text-xs font-bold text-brand-red hover:underline">
               Fraud Moderation
             </Link>
+            <Link to="/case-follow-ups" className="text-xs font-bold text-brand-teal hover:underline">Case Follow-Ups</Link>
+            <Link to="/corruption-heatmap" className="text-xs font-bold text-brand-red hover:underline">Corruption Heatmap</Link>
+            <Link to="/institution-rankings" className="text-xs font-bold text-brand-red hover:underline">Institution Rankings</Link>
+            <Link to="/trust-scores" className="text-xs font-bold text-brand-teal hover:underline">Trust Scores</Link>
+            <Link to="/fame-shame" className="text-xs font-bold text-brand-teal hover:underline">Fame and Shame</Link>
+            <Link to="/admin/accountability" className="text-xs font-bold text-brand-red hover:underline">Accountability Operations</Link>
           </div>
         </div>
-        <div className="flex gap-2 mb-6 border-b border-white/10">
+        <div className="flex gap-2 mb-6 border-b border-white/10 overflow-x-auto whitespace-nowrap">
           <button
             onClick={() => setTab('reports')}
             className={`px-4 py-3 text-sm font-bold border-b-2 -mb-px ${tab === 'reports' ? 'border-brand-teal text-brand-teal' : 'border-transparent text-on-surface/50 hover:text-on-surface/80'}`}
@@ -282,8 +300,16 @@ export default function AdminVerificationPage() {
           >
             User Verification (NID)
           </button>
+          <button
+            onClick={() => setTab('articles')}
+            className={`px-4 py-3 text-sm font-bold border-b-2 -mb-px ${tab === 'articles' ? 'border-brand-teal text-brand-teal' : 'border-transparent text-on-surface/50 hover:text-on-surface/80'}`}
+          >
+            Article Management
+          </button>
         </div>
-        {tab === 'reports' ? <ReportVerificationPanel /> : <NidVerificationPanel />}
+        {tab === 'reports' && <ReportVerificationPanel />}
+        {tab === 'nid' && <NidVerificationPanel />}
+        {tab === 'articles' && <AdminArticlesPanel />}
       </main>
     </div>
   );

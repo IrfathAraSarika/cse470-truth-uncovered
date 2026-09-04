@@ -1,0 +1,31 @@
+import { Router } from 'express';
+import { requireAdmin, requireAuth } from '../middlewares/authMiddleware.js';
+import * as controller from '../controllers/accountabilityController.js';
+
+export const accountabilityRoutes = Router();
+accountabilityRoutes.use(requireAuth);
+accountabilityRoutes.get('/safety', controller.getMySafety);
+accountabilityRoutes.post('/safety', controller.postSafety);
+accountabilityRoutes.patch('/safety/:id/respond', controller.patchSafetyResponse);
+accountabilityRoutes.get('/appeals', controller.getMyAppeals);
+accountabilityRoutes.post('/appeals', controller.postAppeal);
+accountabilityRoutes.get('/subscriptions', controller.getSubscriptions);
+accountabilityRoutes.post('/subscriptions', controller.postSubscription);
+accountabilityRoutes.delete('/subscriptions/:id', controller.removeSubscription);
+accountabilityRoutes.get('/notifications', controller.getRegionalNotifications);
+accountabilityRoutes.patch('/notifications/:id/read', controller.readRegionalNotification);
+accountabilityRoutes.get('/witnesses', controller.getMyWitnesses);
+accountabilityRoutes.post('/witnesses', controller.postWitness);
+
+export const adminAccountabilityRoutes = Router();
+adminAccountabilityRoutes.use(requireAdmin);
+adminAccountabilityRoutes.get('/safety', controller.getAdminSafety);
+adminAccountabilityRoutes.patch('/safety/:id/resolve', controller.patchAdminSafety);
+adminAccountabilityRoutes.get('/appeals', controller.getAdminAppeals);
+adminAccountabilityRoutes.patch('/appeals/:id', controller.patchAdminAppeal);
+adminAccountabilityRoutes.get('/witnesses', controller.getAdminWitnesses);
+adminAccountabilityRoutes.patch('/witnesses/:id', controller.patchAdminWitness);
+adminAccountabilityRoutes.patch('/publication/:reference', controller.patchPublication);
+adminAccountabilityRoutes.get('/institution-notices', controller.getInstitutionNotices);
+adminAccountabilityRoutes.post('/institution-notices', controller.postInstitutionNotice);
+adminAccountabilityRoutes.patch('/institution-notices/:id', controller.patchInstitutionNotice);

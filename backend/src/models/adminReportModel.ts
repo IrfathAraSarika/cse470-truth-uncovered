@@ -2,7 +2,7 @@ import { pool } from './database.js';
 
 export async function listAdminReports(status: string) {
   const result = await pool.query(
-    `select r.report_id, r.title, r.description, r.category, r.status, r.is_anonymous, r.submission_date,
+    `select r.report_id, r.reference_no, c.reference_no as case_reference, r.title, r.description, r.category, r.status, r.is_anonymous, r.submission_date,
             coalesce(r.duplicate_score, 0)::float as duplicate_score,
             count(distinct e.evidence_id)::int as evidence_count,
             count(distinct ar.review_id)::int as review_count,
@@ -10,14 +10,16 @@ export async function listAdminReports(status: string) {
      from reports r left join evidence_files e on e.report_id = r.report_id
      left join admin_report_reviews ar on ar.report_id = r.report_id
      left join flagged_contents f on f.report_id = r.report_id
+     left join cases c on c.report_id = r.report_id
      where ($1 = 'all' or r.status::text = $1)
-     group by r.report_id order by r.submission_date desc`, [status]);
+     group by r.report_id, c.case_id order by r.submission_date desc`, [status]);
   return result.rows;
 }
 
 export async function getAdminReport(reportId: string) {
-  const report = await pool.query('select * from reports where report_id = $1', [reportId]);
+  const report = await pool.query('select * from reports where report_id::text = $1 or reference_no = upper($1)', [reportId]);
   if (!report.rows[0]) return null;
+  reportId = report.rows[0].report_id;
   const [evidence, reviews, flags, duplicates] = await Promise.all([
     pool.query('select evidence_id, file_path, file_type, file_size_bytes, uploaded_at from evidence_files where report_id = $1 order by uploaded_at desc', [reportId]),
     pool.query(`select ar.review_id, ar.decision, ar.notes, ar.created_at, u.full_name as admin_name
@@ -40,6 +42,9 @@ export async function saveReview(reportId: string, userId: string, decision: str
     await client.query('begin');
     const admin = await client.query<{ admin_id: string }>('select admin_id from admins where user_id = $1', [userId]);
     if (!admin.rows[0]) throw new Error('ADMIN_PROFILE_MISSING');
+    const resolved = await client.query('select report_id from reports where report_id::text = $1 or reference_no = upper($1)', [reportId]);
+    if (!resolved.rows[0]) throw new Error('REPORT_NOT_FOUND');
+    reportId = resolved.rows[0].report_id;
     const status = decision === 'request_evidence' ? 'pending_verification' : decision;
     const updated = await client.query('update reports set status = $1::report_status, updated_at = now() where report_id = $2 returning report_id', [status, reportId]);
     if (!updated.rows[0]) throw new Error('REPORT_NOT_FOUND');
