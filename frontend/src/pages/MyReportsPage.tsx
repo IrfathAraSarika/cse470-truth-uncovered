@@ -134,6 +134,14 @@ function ReportCard({ report, index }: { report: Report; index: number }) {
                 </p>
               }
             />
+            <div className="mt-4 py-3 border-t border-white/10 flex justify-end">
+              <Link
+                to={`/evidence-vault?reportId=${report.report_id}`}
+                className="px-4 py-2 bg-brand-teal/10 border border-brand-teal/30 hover:bg-brand-teal/20 text-brand-teal text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
+              >
+                🔒 Attach Encrypted Evidence to Vault
+              </Link>
+            </div>
           </div>
         </div>
       )}

@@ -19,6 +19,8 @@ import analyticsRoutes from './routes/analyticsRoutes.js';
 import repositoryRoutes from './routes/repositoryRoutes.js';
 import { adminTransparencyRoutes, publicTransparencyRoutes } from './routes/transparencyRoutes.js';
 import { accountabilityRoutes, adminAccountabilityRoutes } from './routes/accountabilityRoutes.js';
+import evidenceRoutes from './routes/evidenceRoutes.js';
+import { ensureVaultBucketExists } from './services/supabaseStorage.js';
 
 const app = express();
 app.use(cors({ origin: config.frontendOrigin, credentials: true }));
@@ -43,6 +45,7 @@ app.use('/api/public', publicTransparencyRoutes);
 app.use('/api/admin/transparency', adminTransparencyRoutes);
 app.use('/api/accountability', accountabilityRoutes);
 app.use('/api/admin/accountability', adminAccountabilityRoutes);
+app.use('/api/evidence', evidenceRoutes);
 
 
 app.get('/api/health', async (_request, response, next) => {
@@ -59,6 +62,7 @@ app.use((error: unknown, _request: express.Request, response: express.Response, 
 
 app.listen(config.port, () => {
   console.log(`Backend running on http://localhost:${config.port}`);
+  ensureVaultBucketExists().catch(() => undefined);
   // Warm up the connection pool at startup so the first API calls are fast.
   pool.query('select 1')
     .then(() => console.log('Database pool ready'))
