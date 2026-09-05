@@ -27,7 +27,7 @@ export interface AnonymousReportSubmissionResult {
 }
 
 export const submitAnonymousReport = (report: AnonymousReportSubmission) =>
-  apiRequest<AnonymousReportSubmissionResult>('/anonymous-reports', {
+  apiRequest<AnonymousReportSubmissionResult>('/reports', {
     method: 'POST',
     body: JSON.stringify(report),
   });

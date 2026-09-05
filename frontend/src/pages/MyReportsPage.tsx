@@ -19,7 +19,7 @@ function readStoredUser(): StoredUser | null {
 const STATUS_META: Record<string, { label: string; color: string; dot: string }> = {
   submitted:            { label: 'Submitted',            color: 'text-sky-400 bg-sky-400/10 border-sky-400/30',      dot: 'bg-sky-400'    },
   pending_verification: { label: 'Pending Verification', color: 'text-amber-400 bg-amber-400/10 border-amber-400/30', dot: 'bg-amber-400'  },
-  verified:             { label: 'Verified',             color: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/30', dot: 'bg-emerald-400' },
+  approve:             { label: 'Approved',             color: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/30', dot: 'bg-emerald-400' },
   rejected:             { label: 'Rejected',             color: 'text-rose-400 bg-rose-400/10 border-rose-400/30',   dot: 'bg-rose-400'   },
   under_investigation:  { label: 'Under Investigation',  color: 'text-violet-400 bg-violet-400/10 border-violet-400/30', dot: 'bg-violet-400' },
 };
@@ -250,7 +250,7 @@ export default function MyReportsPage() {
             {[
               { label: 'Total',              value: reports.length,                                      color: 'text-white'        },
               { label: 'Submitted',          value: reports.filter(r => r.status === 'submitted').length,        color: 'text-sky-400'      },
-              { label: 'Verified',           value: reports.filter(r => r.status === 'verified').length,         color: 'text-emerald-400'  },
+              { label: 'Approved  ',           value: reports.filter(r => r.status === 'approve').length,         color: 'text-emerald-400'  },
               { label: 'Under Review',       value: reports.filter(r => ['pending_verification','under_investigation'].includes(r.status)).length, color: 'text-amber-400' },
             ].map(stat => (
               <div key={stat.label} className="rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3">

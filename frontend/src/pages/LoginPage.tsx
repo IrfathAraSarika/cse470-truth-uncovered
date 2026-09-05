@@ -24,7 +24,7 @@ export default function Login() {
       }
       localStorage.setItem('user', JSON.stringify(data.user));
       if (data.citizen) localStorage.setItem('citizen', JSON.stringify(data.citizen));
-      navigate(data.user.role === 'admin' ? '/admin/verification' : '/dashboard');
+      navigate('/');
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : 'Login failed');
     } finally {
