@@ -200,7 +200,7 @@ export default function MyReportsPage() {
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center gap-3">
               <LogoIcon />
-              <span className="font-sora font-bold text-white">Truth Uncovered</span>
+              <span className="font-['Sora'] font-bold text-lg tracking-tight text-white">Truth <span className="text-[#ffb4a4]">Uncovered</span></span>
             </Link>
             <span className="text-on-surface/20 hidden sm:block">›</span>
             <span className="text-sm text-on-surface/50 hidden sm:block">My Reports</span>

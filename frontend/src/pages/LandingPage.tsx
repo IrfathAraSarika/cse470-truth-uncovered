@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { LogoIcon } from '../components/AppIcons';
 import zkPadlock from '../assets/zk_padlock.png';
 
 interface MetadataItem {
@@ -115,18 +116,15 @@ export default function LandingPage() {
       <header className="relative z-10 border-b border-white/[0.06] backdrop-blur-md bg-[#080808]/60 sticky top-0">
         <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="relative flex items-center justify-center w-8 h-8 rounded-full border border-[#ff5634]/40 bg-[#ff5634]/10">
-              <span className="absolute w-5 h-5 rounded-full border border-[#ff5634] animate-ping opacity-45" />
-              <span className="w-2.5 h-2.5 rounded-full bg-[#ff5634]" />
-            </div>
+          <Link to="/" className="flex items-center gap-3">
+            <LogoIcon />
             <span className="font-['Sora'] font-bold text-lg tracking-tight text-white">
               Truth <span className="text-[#ffb4a4]">Uncovered</span>
             </span>
-          </div>
+          </Link>
 
           {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-10 text-base font-semibold text-gray-400">
+          <nav className="hidden lg:flex items-center gap-6 text-sm font-semibold text-gray-400">
             <Link to="/articles" className="hover:text-white transition-colors duration-200">Knowledge Hub</Link>
             <a href="#platform" className="hover:text-white transition-colors duration-200">Platform</a>
             <a href="#smart-features" className="hover:text-white transition-colors duration-200">Smart Features</a>
@@ -134,12 +132,12 @@ export default function LandingPage() {
             <Link to="/repository" className="hover:text-white transition-colors duration-200">Repository</Link>
             <Link to="/heatmap" className="hover:text-white transition-colors duration-200">Heat Map</Link>
             <Link to="/analytics" className="hover:text-white transition-colors duration-200">Analytics</Link>
-            <a href="#impact" className="hover:text-white transition-colors duration-200">Impact</a>
+            <Link to="/impact-stories" className="hover:text-white transition-colors duration-200">Impact</Link>
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-6">
-            <Link to="/login" className="text-base font-bold text-gray-300 hover:text-white transition-colors">
+          <div className="flex items-center gap-5">
+            <Link to="/login" className="text-sm font-bold text-gray-300 hover:text-white transition-colors">
               Login
             </Link>
             <Link 
@@ -694,11 +692,9 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-10">
             {/* Logo and Name */}
             <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="relative flex items-center justify-center w-6 h-6 rounded-full border border-[#ff5634]/40 bg-[#ff5634]/10">
-                  <span className="w-2 h-2 rounded-full bg-[#ff5634]" />
-                </div>
-                <span className="font-['Sora'] font-bold text-md tracking-tight text-white">
+              <div className="flex items-center gap-3 mb-3">
+                <LogoIcon />
+                <span className="font-['Sora'] font-bold text-lg tracking-tight text-white">
                   Truth <span className="text-[#ffb4a4]">Uncovered</span>
                 </span>
               </div>

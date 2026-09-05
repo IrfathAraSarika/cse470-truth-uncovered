@@ -10,6 +10,12 @@ import {
   persistInstitutionMetrics,
   reviewFameShameRecord,
   updateCaseOutcome,
+  listImpactStories,
+  listAdminImpactStories,
+  createImpactStory,
+  reviewImpactStory,
+  incrementShareCount,
+  getImpactStoryBySlug as getImpactStoryBySlugQuery,
 } from '../models/transparencyModel.js';
 import { buildHeatmapPoints } from '../services/heatmapService.js';
 
@@ -115,5 +121,61 @@ export async function adminReviewFameShame(request: AuthenticatedRequest, respon
     const record = await reviewFameShameRecord(recordId, request.auth!.userId, request.body.approved);
     if (!record) { response.status(404).json({ error: 'Record or administrator profile not found.' }); return; }
     response.json({ record });
+  } catch (error) { next(error); }
+}
+
+export async function getImpactStories(request: Request, response: Response, next: NextFunction) {
+  const outcome = typeof request.query.outcome === 'string' && request.query.outcome !== 'all' ? request.query.outcome : null;
+  if (outcome && !['arrest', 'fine', 'reform', 'policy_change', 'other'].includes(outcome)) { response.status(400).json({ error: 'Invalid outcome type.' }); return; }
+  try { response.json({ stories: await listImpactStories(outcome) }); } catch (error) { next(error); }
+}
+
+export async function getImpactStoryBySlug(request: Request, response: Response, next: NextFunction) {
+  const slug = String(request.params.slug ?? '');
+  if (!slug) { response.status(400).json({ error: 'Slug is required.' }); return; }
+  try {
+    const story = await getImpactStoryBySlugQuery(slug);
+    if (!story) response.status(404).json({ error: 'Story not found.' });
+    else response.json({ story });
+  } catch (error) { next(error); }
+}
+
+export async function postShareImpactStory(request: Request, response: Response, next: NextFunction) {
+  const slug = String(request.params.slug ?? '');
+  if (!slug) { response.status(400).json({ error: 'Slug is required.' }); return; }
+  try {
+    const shareCount = await incrementShareCount(slug);
+    if (shareCount === null) response.status(404).json({ error: 'Story not found.' });
+    else response.json({ shareCount });
+  } catch (error) { next(error); }
+}
+
+export async function adminGetImpactStories(request: AuthenticatedRequest, response: Response, next: NextFunction) {
+  try { response.json({ stories: await listAdminImpactStories() }); } catch (error) { next(error); }
+}
+
+export async function adminCreateImpactStory(request: AuthenticatedRequest, response: Response, next: NextFunction) {
+  const title = typeof request.body.title === 'string' ? request.body.title.trim() : '';
+  const description = typeof request.body.description === 'string' ? request.body.description.trim() : '';
+  const outcomeType = request.body.outcomeType;
+  const isAnonymous = Boolean(request.body.isAnonymous);
+  const reportId = request.body.reportId ? String(request.body.reportId) : null;
+  const caseId = request.body.caseId ? String(request.body.caseId) : null;
+  const institutionId = request.body.institutionId ? String(request.body.institutionId) : null;
+  
+  if (title.length < 3 || title.length > 180 || description.length < 20 || description.length > 2000) { response.status(400).json({ error: 'Provide a valid title and a description between 20 and 2000 characters.' }); return; }
+  if (!['arrest', 'fine', 'reform', 'policy_change', 'other'].includes(outcomeType)) { response.status(400).json({ error: 'Invalid outcome type.' }); return; }
+  if ((institutionId && !uuidPattern.test(institutionId)) || (caseId && !uuidPattern.test(caseId) && !caseOrReportReferencePattern.test(caseId)) || (reportId && !uuidPattern.test(reportId) && !caseOrReportReferencePattern.test(reportId))) { response.status(400).json({ error: 'Invalid references.' }); return; }
+  
+  try { response.status(201).json({ story: await createImpactStory(title, description, outcomeType, isAnonymous, reportId, caseId, institutionId) }); } catch (error) { next(error); }
+}
+
+export async function adminReviewImpactStory(request: AuthenticatedRequest, response: Response, next: NextFunction) {
+  const storyId = String(request.params.storyId ?? '');
+  if (!uuidPattern.test(storyId) || typeof request.body.approved !== 'boolean') { response.status(400).json({ error: 'Valid story ID and approval decision are required.' }); return; }
+  try {
+    const story = await reviewImpactStory(storyId, request.auth!.userId, request.body.approved);
+    if (!story) { response.status(404).json({ error: 'Story or administrator profile not found.' }); return; }
+    response.json({ story });
   } catch (error) { next(error); }
 }

@@ -41,7 +41,12 @@ export default function AccountabilityPage() {
   };
 
   return <div className="min-h-screen bg-bg-dark text-on-surface font-inter">
-    <header className="border-b border-white/10"><div className="max-w-[1100px] mx-auto min-h-16 px-6 py-3 flex items-center justify-between gap-4"><Link to="/" className="flex items-center gap-3"><LogoIcon /><span className="font-sora font-bold">Truth Uncovered</span></Link><DashboardLink /></div></header>
+    <header className="border-b border-white/10"><div className="max-w-[1100px] mx-auto min-h-16 px-6 py-3 flex items-center justify-between gap-4"><Link to="/" className="flex items-center gap-3">
+            <LogoIcon />
+            <span className="font-['Sora'] font-bold text-lg tracking-tight text-white">
+              Truth <span className="text-[#ffb4a4]">Uncovered</span>
+            </span>
+          </Link><DashboardLink /></div></header>
     <main className="max-w-[1100px] mx-auto px-6 py-10"><p className="text-xs font-bold uppercase tracking-widest text-brand-teal">Protected Participation</p><h1 className="font-sora text-3xl font-bold text-white mt-2">Safety and Community Actions</h1>
       <div className="flex flex-wrap gap-2 mt-7 border-b border-white/10 pb-3">{(['safety','appeals','alerts','witness'] as Tab[]).map((item) => <button key={item} onClick={() => setTab(item)} className={`px-4 py-2 rounded-lg text-xs font-bold ${tab === item ? 'bg-brand-teal text-black' : 'border border-white/10 text-on-surface/60'}`}>{label(item)}</button>)}</div>
       {error && <p className="mt-5 text-sm text-brand-red">{error}</p>}{message && <p className="mt-5 p-4 border border-brand-teal/30 rounded-lg text-sm text-brand-teal">{message}</p>}

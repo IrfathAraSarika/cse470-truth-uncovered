@@ -153,3 +153,91 @@ export async function reviewFameShameRecord(recordId: string, adminUserId: strin
   );
   return result.rows[0] ?? null;
 }
+
+export async function listImpactStories(outcomeType: string | null, limit = 50) {
+  const result = await pool.query(
+    `select s.story_id, s.title, s.description, s.date_added, s.outcome_type, s.public_slug, s.share_count,
+            case when s.is_anonymous then null else r.reference_no end as report_reference,
+            c.reference_no as case_reference,
+            i.name as institution_name
+       from impact_stories s
+       left join reports r on r.report_id = s.report_id
+       left join cases c on c.case_id = s.case_id
+       left join institutions i on i.institution_id = s.institution_id
+      where s.review_status = 'approved'
+        and ($1::text is null or s.outcome_type = $1)
+      order by s.date_added desc
+      limit $2`,
+    [outcomeType, limit],
+  );
+  return result.rows;
+}
+
+export async function getImpactStoryBySlug(slug: string) {
+  const result = await pool.query(
+    `select s.story_id, s.title, s.description, s.date_added, s.outcome_type, s.public_slug, s.share_count,
+            case when s.is_anonymous then null else r.reference_no end as report_reference,
+            c.reference_no as case_reference,
+            i.name as institution_name
+       from impact_stories s
+       left join reports r on r.report_id = s.report_id
+       left join cases c on c.case_id = s.case_id
+       left join institutions i on i.institution_id = s.institution_id
+      where s.review_status = 'approved' and s.public_slug = $1`,
+    [slug],
+  );
+  return result.rows[0] ?? null;
+}
+
+export async function incrementShareCount(slug: string) {
+  const result = await pool.query(
+    `update impact_stories set share_count = share_count + 1 where public_slug = $1 and review_status = 'approved' returning share_count`,
+    [slug],
+  );
+  return result.rows[0]?.share_count ?? null;
+}
+
+export async function listAdminImpactStories() {
+  const result = await pool.query(
+    `select s.story_id, s.title, s.description, s.date_added, s.outcome_type, s.public_slug, s.share_count, s.review_status, s.is_anonymous,
+            r.reference_no as report_reference,
+            c.reference_no as case_reference,
+            i.name as institution_name
+       from impact_stories s
+       left join reports r on r.report_id = s.report_id
+       left join cases c on c.case_id = s.case_id
+       left join institutions i on i.institution_id = s.institution_id
+      order by (s.review_status = 'pending') desc, s.date_added desc
+      limit 200`,
+  );
+  return result.rows;
+}
+
+export async function createImpactStory(title: string, description: string, outcomeType: string, isAnonymous: boolean, reportId: string | null, caseId: string | null, institutionId: string | null) {
+  const slug = Math.random().toString(36).substring(2, 12).toLowerCase();
+  
+  const result = await pool.query(
+    `insert into impact_stories (title, description, outcome_type, is_anonymous, report_id, case_id, institution_id, public_slug)
+     values ($1, $2, $3, $4, 
+       (select report_id from reports where report_id::text = $5 or reference_no = upper($5)), 
+       (select case_id from cases where case_id::text = $6 or reference_no = upper($6)), 
+       $7, $8)
+     returning story_id, title, public_slug`,
+    [title, description, outcomeType, isAnonymous, reportId, caseId, institutionId, slug],
+  );
+  return result.rows[0];
+}
+
+export async function reviewImpactStory(storyId: string, adminUserId: string, approved: boolean) {
+  const result = await pool.query(
+    `update impact_stories s
+        set review_status = case when $2 then 'approved' else 'rejected' end,
+            approved_at = case when $2 then now() else null end,
+            approved_by_admin_id = a.admin_id
+       from admins a
+      where s.story_id = $1 and a.user_id = $3
+      returning s.story_id, s.review_status`,
+    [storyId, approved, adminUserId],
+  );
+  return result.rows[0] ?? null;
+}
