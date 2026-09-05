@@ -1,4 +1,5 @@
 import { pool } from './database.js';
+import { awardPoints } from './rewardModel.js';
 
 // Public: active reports that citizens can flag for review.
 export async function fetchFlaggableReports() {
@@ -79,7 +80,10 @@ export async function resolveFlaggedItem(flagId: string, decision: 'dismiss' | '
   try {
     await client.query('begin');
 
-    const flagRes = await client.query('select report_id from flagged_contents where flag_id = $1', [flagId]);
+    const flagRes = await client.query<{ report_id: string; flagged_by_user_id: string | null }>(
+      'select report_id, flagged_by_user_id from flagged_contents where flag_id = $1',
+      [flagId],
+    );
     if (!flagRes.rows[0]) {
       throw new Error('Flagged item record not found.');
     }
@@ -88,6 +92,19 @@ export async function resolveFlaggedItem(flagId: string, decision: 'dismiss' | '
 
     if (decision === 'hide') {
       await client.query("update reports set status = 'hidden', updated_at = now() where report_id = $1", [reportId]);
+
+      // Award 15 pts to the flagger for a confirmed community flag
+      const flaggerUserId = flagRes.rows[0].flagged_by_user_id;
+      if (flaggerUserId) {
+        const citizenRes = await client.query<{ citizen_id: string }>(
+          `select citizen_id from citizens where user_id = $1`,
+          [flaggerUserId],
+        );
+        const citizenId = citizenRes.rows[0]?.citizen_id;
+        if (citizenId) {
+          await awardPoints(citizenId, 15, 'Community flag confirmed — fake report identified', client);
+        }
+      }
     }
     await client.query('update flagged_contents set is_resolved = true where flag_id = $1', [flagId]);
 

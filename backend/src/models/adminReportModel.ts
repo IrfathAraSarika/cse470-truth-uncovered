@@ -1,4 +1,5 @@
 import { pool } from './database.js';
+import { awardPoints } from './rewardModel.js';
 
 export async function listAdminReports(status: string) {
   const result = await pool.query(
@@ -50,7 +51,30 @@ export async function saveReview(reportId: string, userId: string, decision: str
     if (!updated.rows[0]) throw new Error('REPORT_NOT_FOUND');
     await client.query(`insert into admin_report_reviews (report_id, admin_id, decision, notes) values ($1, $2, $3::admin_review_decision, $4)`, [reportId, admin.rows[0].admin_id, decision, notes]);
     await client.query('update flagged_contents set is_resolved = true where report_id = $1', [reportId]);
-    if (decision === 'verified') await client.query(`insert into cases (report_id, status) values ($1, 'verified') on conflict (report_id) do update set status = 'verified', updated_at = now()`, [reportId]);
+    if (decision === 'verified') {
+      await client.query(`insert into cases (report_id, status) values ($1, 'verified') on conflict (report_id) do update set status = 'verified', updated_at = now()`, [reportId]);
+
+      // Award civic points to the report author
+      const citizenRes = await client.query<{ citizen_id: string }>(
+        `select r.citizen_id from reports r where r.report_id = $1`,
+        [reportId],
+      );
+      const citizenId = citizenRes.rows[0]?.citizen_id;
+      if (citizenId) {
+        // 50 pts for the verified report
+        await awardPoints(citizenId, 50, 'Verified report submission', client);
+
+        // 25 pts per evidence file attached to the report
+        const evidenceRes = await client.query<{ count: string }>(
+          `select count(*)::int as count from evidence_files where report_id = $1`,
+          [reportId],
+        );
+        const evidenceCount = Number(evidenceRes.rows[0]?.count ?? 0);
+        if (evidenceCount > 0) {
+          await awardPoints(citizenId, evidenceCount * 25, `Evidence files on verified report (${evidenceCount} file${evidenceCount > 1 ? 's' : ''})`, client);
+        }
+      }
+    }
     await client.query('commit');
   } catch (error) { await client.query('rollback'); throw error; } finally { client.release(); }
 }

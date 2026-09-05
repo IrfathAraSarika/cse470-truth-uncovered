@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { LogoIcon, ShieldIcon } from '../components/AppIcons';
 import { getMyVerification, type VerificationStatusValue } from '../services/verificationApi';
@@ -15,8 +15,14 @@ import {
   type Category,
   type AppNotification
 } from '../services/articleApi';
+import {
+  getRewardProfile,
+  redeemBadge,
+  updateAnonymity,
+  type RewardProfile,
+} from '../services/rewardApi';
 
-interface StoredUser { name: string; email: string; role: string }
+interface StoredUser { name: string; email: string; role: string; id?: string }
 const roleLabel = (role: string) => role.replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
 
 function VerifiedBadge() {
@@ -30,12 +36,21 @@ function VerifiedBadge() {
 
 export default function UserDashboardPage() {
   const navigate = useNavigate();
-  const stored = localStorage.getItem('user');
-  const user = stored ? JSON.parse(stored) as StoredUser : null;
+  const user = useMemo(() => {
+    const stored = localStorage.getItem('user');
+    return stored ? JSON.parse(stored) as StoredUser : null;
+  }, []);
 
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatusValue | null>(null);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   
+  // Civic reward states
+  const [rewardProfile, setRewardProfile] = useState<RewardProfile | null>(null);
+  const [rewardLoading, setRewardLoading] = useState(false);
+  const [redeemingBadge, setRedeemingBadge] = useState('');
+  const [rewardError, setRewardError] = useState('');
+  const [rewardSuccess, setRewardSuccess] = useState('');
+
   // Contributor Article States
   const [myArticles, setMyArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -49,6 +64,19 @@ export default function UserDashboardPage() {
   const [formCoverImage, setFormCoverImage] = useState<string>('');
   const [formError, setFormError] = useState<string>('');
   const [formSaving, setFormSaving] = useState<boolean>(false);
+
+  const loadRewards = useCallback(async () => {
+    setRewardLoading(true);
+    try {
+      const profile = await getRewardProfile();
+      setRewardProfile(profile);
+    } catch (err) {
+      console.error('Failed to load reward profile:', err);
+      // silently ignore — citizen profile may not exist yet
+    } finally {
+      setRewardLoading(false);
+    }
+  }, []);
 
   const loadNotifications = useCallback(async () => {
     try {
@@ -71,11 +99,12 @@ export default function UserDashboardPage() {
 
   useEffect(() => {
     if (!user) return;
-    
+
     if (user.role === 'citizen') {
       getMyVerification()
         .then((data) => setVerificationStatus(data.status))
         .catch(() => setVerificationStatus(null));
+      loadRewards();
     }
 
     // Load Notifications for all authenticated users
@@ -200,6 +229,33 @@ export default function UserDashboardPage() {
 
   const isContributor = user.role === 'ngo_partner' || user.role === 'government_officer';
 
+  const handleRedeemBadge = async (badgeType: string) => {
+    setRedeemingBadge(badgeType);
+    setRewardError('');
+    setRewardSuccess('');
+    try {
+      const result = await redeemBadge(badgeType);
+      setRewardProfile((prev) => prev ? { ...prev, civicPoints: result.newBalance } : prev);
+      setRewardSuccess(`Badge redeemed! New balance: ${result.newBalance.toLocaleString()} pts`);
+      await loadRewards(); // refresh badges list
+    } catch (err: unknown) {
+      setRewardError(err instanceof Error ? err.message : 'Redemption failed.');
+    } finally {
+      setRedeemingBadge('');
+    }
+  };
+
+  const handleToggleAnonymity = async () => {
+    if (!rewardProfile) return;
+    const next = !rewardProfile.anonymousLeaderboard;
+    try {
+      await updateAnonymity(next);
+      setRewardProfile((prev) => prev ? { ...prev, anonymousLeaderboard: next } : prev);
+    } catch {
+      // silently fail
+    }
+  };
+
   return (
     <div className="min-h-screen bg-bg-dark text-on-surface font-inter">
       <header className="border-b border-white/10 bg-bg-dark/95">
@@ -267,6 +323,7 @@ export default function UserDashboardPage() {
               <Link to="/my-reports" className="inline-block px-5 py-3 border border-brand-teal/40 text-brand-teal rounded-lg text-sm font-bold">My Reports</Link>
               <Link to="/case-tracker" className="inline-block px-5 py-3 border border-white/15 text-white rounded-lg text-sm font-bold">Track a Case</Link>
               <Link to="/offline-drafts" className="inline-block px-5 py-3 border border-white/15 text-white rounded-lg text-sm font-bold">Offline Drafts</Link>
+              <Link to="/leaderboard" className="inline-block px-5 py-3 border border-amber-400/30 text-amber-400 rounded-lg text-sm font-bold hover:bg-amber-400/10 transition-colors">🏆 Leaderboard</Link>
               <Link
                 to="/verification"
                 className={`inline-flex items-center gap-2 px-5 py-3 rounded-lg text-sm font-bold ${
@@ -418,6 +475,171 @@ export default function UserDashboardPage() {
                 </tbody>
               </table>
             </div>
+          </section>
+        )}
+
+        {/* ── Civic Rewards Section (Citizen only) ── */}
+        {user.role === 'citizen' && (
+          <section className="mt-6 border border-amber-400/20 rounded-xl p-6 md:p-8 bg-amber-400/[0.03]">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🏆</span>
+                <div>
+                  <h2 className="font-sora text-lg font-bold text-white">Civic Rewards</h2>
+                  <p className="text-xs text-on-surface/50 mt-0.5">Earn points for verified contributions. Redeem them for profile badges.</p>
+                </div>
+              </div>
+              <Link
+                to="/leaderboard"
+                className="text-xs font-bold text-amber-400 border border-amber-400/30 px-3 py-1.5 rounded-lg hover:bg-amber-400/10 transition-colors"
+              >
+                View Public Leaderboard →
+              </Link>
+            </div>
+
+            {rewardLoading ? (
+              <div className="animate-pulse space-y-3">
+                <div className="h-16 bg-white/5 rounded-xl" />
+                <div className="h-24 bg-white/5 rounded-xl" />
+              </div>
+            ) : rewardProfile ? (
+              <div className="space-y-6">
+                {/* Point balance */}
+                <div className="flex items-center gap-4 p-5 rounded-xl bg-gradient-to-r from-amber-400/10 to-transparent border border-amber-400/20">
+                  <div className="text-4xl">⭐</div>
+                  <div>
+                    <p className="text-3xl font-black text-amber-400 tabular-nums">
+                      {rewardProfile.civicPoints.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-on-surface/50 uppercase tracking-widest">Civic Points</p>
+                  </div>
+                </div>
+
+                {/* Earned badges */}
+                {rewardProfile.badges.length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface/50 mb-3">Your Badges</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {rewardProfile.badges.map((b) => {
+                        const icons: Record<string, string> = {
+                          civic_champion: '🏆', trusted_contributor: '⭐', community_hero: '🦸',
+                          corruption_crusader: '⚔️', evidence_expert: '🔬', community_guardian: '🛡️',
+                        };
+                        const icon = icons[b.badgeType] ?? '🏅';
+                        const label = b.badgeType.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+                        return (
+                          <span
+                            key={b.badgeId}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border border-amber-400/30 bg-amber-400/10 text-amber-300"
+                            title={`Earned ${new Date(b.awardedAt).toLocaleDateString()}`}
+                          >
+                            {icon} {label}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Redeemable badges shop */}
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface/50 mb-3">Redeem Badges</h3>
+                  <div className="grid sm:grid-cols-3 gap-3">
+                    {rewardProfile.redeemableBadges.map((b) => {
+                      const icons: Record<string, string> = {
+                        civic_champion: '🏆', trusted_contributor: '⭐', community_hero: '🦸',
+                      };
+                      const icon = icons[b.badgeType] ?? '🏅';
+                      const label = b.badgeType.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+                      const canAfford = rewardProfile.civicPoints >= b.pointCost;
+                      const isRedeeming = redeemingBadge === b.badgeType;
+                      return (
+                        <div
+                          key={b.badgeId}
+                          className={`flex flex-col items-center gap-2 p-4 rounded-xl border text-center transition-all ${
+                            b.owned
+                              ? 'border-emerald-500/30 bg-emerald-500/5'
+                              : canAfford
+                              ? 'border-amber-400/30 bg-amber-400/5 hover:border-amber-400/60'
+                              : 'border-white/5 bg-white/[0.02] opacity-60'
+                          }`}
+                        >
+                          <span className="text-3xl">{icon}</span>
+                          <div>
+                            <p className="text-xs font-bold text-white">{label}</p>
+                            <p className="text-[10px] text-on-surface/40">{b.pointCost.toLocaleString()} pts</p>
+                          </div>
+                          {b.owned ? (
+                            <span className="text-[10px] font-bold text-emerald-400 border border-emerald-400/30 px-2 py-0.5 rounded-full">✓ Owned</span>
+                          ) : (
+                            <button
+                              onClick={() => handleRedeemBadge(b.badgeType)}
+                              disabled={!canAfford || isRedeeming || !!redeemingBadge}
+                              className={`w-full px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
+                                canAfford
+                                  ? 'bg-amber-400 text-black hover:bg-amber-300 active:scale-95'
+                                  : 'bg-white/5 text-on-surface/30 cursor-not-allowed'
+                              }`}
+                            >
+                              {isRedeeming ? 'Redeeming…' : canAfford ? 'Redeem' : 'Need more pts'}
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Feedback messages */}
+                {rewardSuccess && (
+                  <p className="text-xs text-emerald-400 font-bold bg-emerald-400/10 border border-emerald-400/20 px-4 py-2.5 rounded-lg">
+                    ✓ {rewardSuccess}
+                  </p>
+                )}
+                {rewardError && (
+                  <p className="text-xs text-brand-red font-bold bg-brand-red/10 border border-brand-red/20 px-4 py-2.5 rounded-lg">
+                    ✗ {rewardError}
+                  </p>
+                )}
+
+                {/* Leaderboard anonymity toggle */}
+                <div className="flex items-center justify-between p-4 rounded-xl bg-white/[0.025] border border-white/8">
+                  <div>
+                    <p className="text-sm font-bold text-white">Appear as Anonymous on Leaderboard</p>
+                    <p className="text-xs text-on-surface/40 mt-0.5">Your points will still count but your name won't be shown publicly.</p>
+                  </div>
+                  <button
+                    id="anonymity-toggle"
+                    onClick={handleToggleAnonymity}
+                    className={`relative w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none ${
+                      rewardProfile.anonymousLeaderboard ? 'bg-brand-teal' : 'bg-white/20'
+                    }`}
+                    aria-label="Toggle leaderboard anonymity"
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 ${
+                        rewardProfile.anonymousLeaderboard ? 'translate-x-6' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* How to earn points */}
+                <details className="group">
+                  <summary className="cursor-pointer text-xs font-bold text-on-surface/40 hover:text-brand-teal transition-colors list-none flex items-center gap-1">
+                    <span className="group-open:rotate-90 transition-transform inline-block">▶</span>
+                    How to earn civic points
+                  </summary>
+                  <div className="mt-3 p-4 rounded-lg bg-white/[0.02] border border-white/5 text-xs text-on-surface/60 space-y-1.5">
+                    <div className="flex justify-between"><span>✅ Verified report submission</span><span className="font-bold text-amber-400">+50 pts</span></div>
+                    <div className="flex justify-between"><span>📎 Each evidence file on a verified report</span><span className="font-bold text-amber-400">+25 pts</span></div>
+                    <div className="flex justify-between"><span>🚩 Community flag confirmed as fake report</span><span className="font-bold text-amber-400">+15 pts</span></div>
+                  </div>
+                </details>
+              </div>
+            ) : (
+              <p className="text-sm text-on-surface/40">Civic rewards are available to verified citizens. Complete your profile to get started.</p>
+            )}
           </section>
         )}
       </main>
