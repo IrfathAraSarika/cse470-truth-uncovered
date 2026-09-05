@@ -20,6 +20,7 @@ import repositoryRoutes from './routes/repositoryRoutes.js';
 import { adminTransparencyRoutes, publicTransparencyRoutes } from './routes/transparencyRoutes.js';
 import { accountabilityRoutes, adminAccountabilityRoutes } from './routes/accountabilityRoutes.js';
 import evidenceRoutes from './routes/evidenceRoutes.js';
+import rewardRoutes from './routes/rewardRoutes.js';
 import { ensureVaultBucketExists } from './services/supabaseStorage.js';
 
 const app = express();
@@ -46,6 +47,7 @@ app.use('/api/admin/transparency', adminTransparencyRoutes);
 app.use('/api/accountability', accountabilityRoutes);
 app.use('/api/admin/accountability', adminAccountabilityRoutes);
 app.use('/api/evidence', evidenceRoutes);
+app.use('/api/rewards', rewardRoutes);
 
 
 app.get('/api/health', async (_request, response, next) => {
