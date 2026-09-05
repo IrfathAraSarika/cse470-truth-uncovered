@@ -42,7 +42,9 @@ export default function Signup() {
         <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
             <LogoIcon />
-            <span className="font-sora font-bold text-lg tracking-tight">Truth Uncovered</span>
+            <span className="font-['Sora'] font-bold text-lg tracking-tight text-white">
+              Truth <span className="text-[#ffb4a4]">Uncovered</span>
+            </span>
           </Link>
 
           <Link to="/login" className="text-sm font-medium px-5 py-2 bg-brand-red text-white hover:bg-brand-red/90 rounded-lg interactive-hover font-semibold">

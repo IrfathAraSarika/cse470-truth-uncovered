@@ -10,6 +10,12 @@ import {
   getFameShame,
   getHeatmap,
   getRankings,
+  getImpactStories,
+  getImpactStoryBySlug,
+  postShareImpactStory,
+  adminGetImpactStories,
+  adminCreateImpactStory,
+  adminReviewImpactStory,
 } from '../controllers/transparencyController.js';
 import { requireAdmin } from '../middlewares/authMiddleware.js';
 
@@ -17,6 +23,9 @@ export const publicTransparencyRoutes = Router();
 publicTransparencyRoutes.get('/heatmap', getHeatmap);
 publicTransparencyRoutes.get('/institutions/rankings', getRankings);
 publicTransparencyRoutes.get('/fame-shame', getFameShame);
+publicTransparencyRoutes.get('/impact-stories', getImpactStories);
+publicTransparencyRoutes.get('/impact-stories/:slug', getImpactStoryBySlug);
+publicTransparencyRoutes.post('/impact-stories/:slug/share', postShareImpactStory);
 
 export const adminTransparencyRoutes = Router();
 adminTransparencyRoutes.use(requireAdmin);
@@ -27,3 +36,6 @@ adminTransparencyRoutes.patch('/cases/:caseOrReportId/outcome', adminUpdateCaseO
 adminTransparencyRoutes.get('/fame-shame', adminGetFameShame);
 adminTransparencyRoutes.post('/fame-shame', adminCreateFameShame);
 adminTransparencyRoutes.post('/fame-shame/:recordId/review', adminReviewFameShame);
+adminTransparencyRoutes.get('/impact-stories', adminGetImpactStories);
+adminTransparencyRoutes.post('/impact-stories', adminCreateImpactStory);
+adminTransparencyRoutes.post('/impact-stories/:storyId/review', adminReviewImpactStory);

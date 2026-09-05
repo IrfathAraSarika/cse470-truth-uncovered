@@ -27,6 +27,7 @@ const InstitutionRankingsPage = lazy(() => import('./pages/InstitutionRankingsPa
 const FameShamePage = lazy(() => import('./pages/FameShamePage'));
 const AccountabilityPage = lazy(() => import('./pages/AccountabilityPage'));
 const AdminAccountabilityPage = lazy(() => import('./pages/AdminAccountabilityPage'));
+const ImpactStoriesPage = lazy(() => import('./pages/ImpactStoriesPage'));
 
 // Dummy page components just for the template
 const Chat = () => (
@@ -70,6 +71,8 @@ function App() {
         <Route path="/fame-shame" element={<FameShamePage />} />
         <Route path="/accountability" element={<AccountabilityPage />} />
         <Route path="/admin/accountability" element={<AdminAccountabilityPage />} />
+        <Route path="/impact-stories" element={<ImpactStoriesPage />} />
+        <Route path="/impact-stories/:slug" element={<ImpactStoriesPage />} />
       </Routes>
       </Suspense>
     </BrowserRouter>

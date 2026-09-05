@@ -156,7 +156,9 @@ export default function InstitutionRankingsPage({
         <div className="max-w-[1100px] mx-auto h-16 px-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
             <LogoIcon />
-            <span className="font-sora font-bold">Truth Uncovered</span>
+            <span className="font-['Sora'] font-bold text-lg tracking-tight text-white">
+              Truth <span className="text-[#ffb4a4]">Uncovered</span>
+            </span>
           </Link>
           <DashboardLink />
         </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { LogoIcon } from '../components/AppIcons';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { getAnalyticsData, type AnalyticsData } from '../services/analyticsApi';
 
@@ -56,10 +57,8 @@ export default function AnalyticsPage() {
       <header className="border-b border-white/10 bg-bg-dark/95 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-[1200px] mx-auto h-16 px-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <div className="relative flex items-center justify-center w-8 h-8 rounded-full border border-[#ff5634]/40 bg-[#ff5634]/10">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#ff5634]" />
-            </div>
-            <span className="font-sora font-bold text-white text-lg">
+            <LogoIcon />
+            <span className="font-['Sora'] font-bold text-lg tracking-tight text-white">
               Truth <span className="text-[#ffb4a4]">Uncovered</span>
             </span>
           </Link>
